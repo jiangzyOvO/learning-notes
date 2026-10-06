@@ -1,12 +1,13 @@
 # Stanford CS336 语言模型从零构建
 
-以 Stanford CS336 Spring 2026 视频及官方配套材料为主，面向初学者解释语言模型的原理、实现与资源约束。按所选视频的 18 节学习安排逐节整理；讲次以视频标题核对，课程官网的安排单独作为资料索引。
+以 Stanford CS336 Spring 2026 官方讲义与配套代码为主要依据，面向初学者解释语言模型的原理、实现与资源约束。按所选课程的 18 节学习安排逐节整理；官方课程安排单独作为资料索引。
 
 ## 课程笔记
 
 | 讲次 | 主题 | 阅读入口 |
 |---|---|---|
 | 01 | 课程总览与 Tokenization | [详细笔记](notes/01-overview-tokenization.md) · [代码示例](experiments/lecture01_tokenization.py) |
+| 02 | PyTorch 张量操作与资源核算 | [详细笔记](notes/02-pytorch-resource-accounting.md) · [核算示例](experiments/lecture02_accounting.py) |
 
 第一讲先建立文字、token、编号、预测之间的关系，再解释字符级、字节级、词级方案，以及 BPE 的训练、编码和解码。
 

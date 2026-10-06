@@ -7,6 +7,7 @@
 | 课程 | 内容 | 阅读入口 |
 |---|---|---|
 | Stanford CS231n 2025 | 计算机视觉、神经网络、生成模型与机器人学习 | [课程目录](courses/cs231n/README.md) · [全课程复习](courses/cs231n/notes/00-deep-review-summary.md) |
+| Stanford CS336 2026 | 从零构建语言模型，理解训练、系统与数据 | [课程目录](courses/cs336/README.md) · [第一讲](courses/cs336/notes/01-overview-tokenization.md) |
 
 ## 专题
 

@@ -95,8 +95,10 @@ p_{\theta}(x_1,\ldots,x_T)
 本例把三个片段当作三个 token。一个常见损失是负对数似然：
 
 ```math
-\mathcal{L}=-\sum_{t=1}^{T}\log p_{\theta}(x_t\mid x_{<t}).
+\mathcal{L}=-\sum_{t=1}^{T}\log p_{\theta}(x_t\mid x_1,\ldots,x_{t-1}).
 ```
+
+条件部分表示第 t 个 token 之前的所有 token；第一项使用空前缀。每个位置取真实下一项概率的负对数，再把这些损失相加。
 
 真实项的概率越大，负对数越小。上面三项的总损失是 $`-\log(0.1)\approx2.3026`$；若对三个位置取平均，则是约 0.7675。求和与平均是不同的约定。
 

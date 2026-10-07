@@ -10,6 +10,10 @@
 | 02 | PyTorch 张量操作与资源核算 | [详细笔记](notes/02-pytorch-resource-accounting.md) · [核算示例](experiments/lecture02_accounting.py) |
 | 03 | 模型架构与超参数 | [详细笔记](notes/03-architectures-hyperparameters.md) · [数值示例](experiments/lecture03_math.py) |
 
+## 配套作业
+
+- [Assignment 1：Basics](assignments/assignment1-basics/README.md)：2026-10-07 保存的作业进度，包含 BPE 训练、tokenizer，以及 Linear、Embedding、RMSNorm。对应检查为 29 passed、2 skipped；`from_files`、后续模型组件、训练流程和实验尚未完成。作业目录保留官方测试与依赖配置，可在该目录执行 `uv run pytest`；未完成的组件仍会报 `NotImplementedError`。
+
 ## 后续课程
 
 以下按 [2026 官方目录](https://cs336.stanford.edu/)记录，笔记随学习逐讲整理。

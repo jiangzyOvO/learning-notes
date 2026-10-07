@@ -110,8 +110,8 @@ Q 是查询表示，K 是用于匹配的表示，V 是用于汇总的内容。�
 Q、K 的每行维度记为 d_k，V 的每行维度记为 d_v：
 
 ```math
-Z=\frac{QK^{\mathsf T}}{\sqrt{d_k}}+M,
-\qquad A=\operatorname{softmax}_{keys}(Z),
+Z=\frac{QK^{\mathsf{T}}}{\sqrt{d_k}}+M,
+\qquad A=\mathrm{softmax}_{\mathrm{keys}}(Z),
 \qquad O=AV.
 ```
 
@@ -148,7 +148,7 @@ M 在允许处为 0，禁止处在理想表达中为负无穷；加到 logits �
 若两个 value 向量是 `[1,0]` 与 `[0,3]`：
 
 ```math
-o=\frac23[1,0]+\frac13[0,3]=[2/3,1].
+o=\frac{2}{3}[1,0]+\frac{1}{3}[0,3]=\left[\frac{2}{3},1\right].
 ```
 
 注意力是加权汇总，不一定只选一个位置。这里的权重也不是下一个 token 的生成概率：前者分布在 key 位置上，后者分布在词表候选上。
@@ -176,8 +176,8 @@ y=x+F(x).
 现代串行 block 的一种写法是：
 
 ```math
-h=x+\operatorname{Attention}(\operatorname{Norm}_1(x)),
-\qquad y=h+\operatorname{FFN}(\operatorname{Norm}_2(h)).
+h=x+\mathrm{Attention}(\mathrm{Norm}_1(x)),
+\qquad y=h+\mathrm{FFN}(\mathrm{Norm}_2(h)).
 ```
 
 课件结合梯度传播与尖峰现象讨论 Pre-Norm 的稳定性优势。它不能免除学习率、初始化与其他训练设置的检查。课件还介绍分支输出归一化或双重归一化，关键是判断归一化是否直接影响主残差路径，不只看它叫“前”还是“后”。
@@ -191,8 +191,8 @@ h=x+\operatorname{Attention}(\operatorname{Norm}_1(x)),
 对 d 维向量，均值与方差是：
 
 ```math
-\mu=\frac1d\sum_i x_i,\qquad
-\sigma^2=\frac1d\sum_i(x_i-\mu)^2.
+\mu=\frac{1}{d}\sum_{i=1}^{d} x_i,\qquad
+\sigma^2=\frac{1}{d}\sum_{i=1}^{d}(x_i-\mu)^2.
 ```
 
 典型输出为：
@@ -208,8 +208,8 @@ gamma 是可学习缩放，beta 是可学习偏移，有些配置去掉偏移。
 均方根 RMS 使用平方的平均：
 
 ```math
-\operatorname{RMS}(x)=\sqrt{\frac1d\sum_i x_i^2},\qquad
-y_i=\gamma_i\frac{x_i}{\sqrt{\frac1d\sum_jx_j^2+\epsilon}}.
+\mathrm{RMS}(x)=\sqrt{\frac{1}{d}\sum_{i=1}^{d} x_i^2},\qquad
+y_i=\gamma_i\frac{x_i}{\sqrt{\frac{1}{d}\sum_{j=1}^{d}x_j^2+\epsilon}}.
 ```
 
 它通常不减均值，也不添加 beta。课件用向量范数作简写；实际 RMS 定义包含维度平均，不能直接把未平均的二范数当成 RMS。
@@ -228,7 +228,7 @@ y_i=\gamma_i\frac{x_i}{\sqrt{\frac1d\sum_jx_j^2+\epsilon}}.
 课件第 20–26 页比较激活和门控。普通无偏置 FFN 常写为：
 
 ```math
-\operatorname{FFN}(x)=\phi(xW_1)W_2.
+\mathrm{FFN}(x)=\phi(xW_1)W_2.
 ```
 
 W1 将 d 维扩展到 d_ff，逐元素非线性 phi 之后，W2 再映射回 d。只有相连的线性矩阵仍可合并成一个线性变换，非线性改变了表达能力。
@@ -242,8 +242,8 @@ W1 将 d 维扩展到 d_ff，逐元素非线性 phi 之后，W2 再映射回 d�
 SwiGLU 使用两路输入投影，逐元素相乘后再投影：
 
 ```math
-\operatorname{SwiGLU}(x)
-=\bigl(\operatorname{SiLU}(xW_g)\odot(xW_u)\bigr)W_d.
+\mathrm{SwiGLU}(x)
+=\bigl(\mathrm{SiLU}(xW_g)\odot(xW_u)\bigr)W_d.
 ```
 
 两路先得到形状相同的向量，门控路经 SiLU，再与另一条路逐元素相乘。这里的门控不是从多个专家中选择专家，也不要求门值落在 0 到 1。
@@ -257,8 +257,8 @@ SwiGLU 使用两路输入投影，逐元素相乘后再投影：
 要匹配普通 `d_ff=4d` 的参数规模：
 
 ```math
-2d(4d)=3d\,d_{ff}^{gated},\qquad
-d_{ff}^{gated}=\frac83d.
+2d(4d)=3d\,d_{\mathrm{ff}}^{\mathrm{gated}},\qquad
+d_{\mathrm{ff}}^{\mathrm{gated}}=\frac{8}{3}d.
 ```
 
 这解释了课件中的 2/3 缩放。它是相近参数预算的比较，不是所有模型必须遵守的规则；实际常按硬件友好的倍数调整宽度。
@@ -272,8 +272,8 @@ d_{ff}^{gated}=\frac83d.
 简化表达为：
 
 ```math
-y=x+\operatorname{Attention}(\operatorname{Norm}(x))
-+\operatorname{FFN}(\operatorname{Norm}(x)).
+y=x+\mathrm{Attention}(\mathrm{Norm}(x))
++\mathrm{FFN}(\mathrm{Norm}(x)).
 ```
 
 分支归一化是否共享取决于实现。并行结构可能便于融合投影和减少等待，但它改变了计算依赖，并非只是在硬件上把原串行结构同时执行。课件指出串行结构仍很常见。
@@ -300,7 +300,7 @@ y=x+\operatorname{Attention}(\operatorname{Norm}(x))
 对位置 m 的 query 与位置 n 的 key：
 
 ```math
-(R_mq)^{\mathsf T}(R_nk)=q^{\mathsf T}R_{n-m}k.
+(R_mq)^{\mathsf{T}}(R_nk)=q^{\mathsf{T}}R_{n-m}k.
 ```
 
 点积中的显式位置因素由两位置的差决定。共同平移位置会共同旋转，保持相应点积不变。这里描述旋转机制；实际 q、k 自身还取决于文本与前层上下文。
@@ -346,7 +346,7 @@ Weight decay 则在更新中对权重施加衰减。它不仅可能影响过拟�
 第 52–56 页讨论损失尖峰与分数尺度。指数函数会放大分数差异，过大数值可能溢出。计算 softmax 的常见数值方法是减去本行最大值：
 
 ```math
-\operatorname{softmax}(z)_i
+\mathrm{softmax}(z)_i
 =\frac{e^{z_i-m}}{\sum_j e^{z_j-m}},\qquad m=\max_j z_j.
 ```
 
@@ -357,7 +357,7 @@ Weight decay 则在更新中对权重施加衰减。它不仅可能影响过拟�
 定义输出分数的归一化量 `Z=Σ exp(z_i)`。课件第 54 页给出的辅助约束，在最小化负对数似然的约定下为：
 
 ```math
-\mathcal L_{total}=\mathcal L_{NLL}+\alpha(\log Z)^2.
+\mathcal{L}_{\mathrm{total}}=\mathcal{L}_{\mathrm{NLL}}+\alpha(\log Z)^2.
 ```
 
 它鼓励 log Z 接近 0，限制输出分数的共同偏移。Softmax 本身对所有 logits 加同一常数不变，而 log Z 会改变；这帮助理解为何概率相同也可能有不同的数值尺度。

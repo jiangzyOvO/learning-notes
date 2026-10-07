@@ -1,6 +1,6 @@
 # Stanford CS336 语言模型从零构建
 
-以 Stanford CS336 Spring 2026 官方讲义与配套代码为主要依据，面向初学者解释语言模型的原理、实现与资源约束。按所选课程的 18 节学习安排逐节整理；官方课程安排单独作为资料索引。
+以 Stanford CS336 Spring 2026 官方讲义与配套代码为主要依据，面向初学者解释语言模型的原理、实现与资源约束。先按学习者要求推进第 1–18 讲；2026 官网共安排 19 讲，其中第 18、19 讲为嘉宾讲座。
 
 ## 课程笔记
 
@@ -8,6 +8,30 @@
 |---|---|---|
 | 01 | 课程总览与 Tokenization | [详细笔记](notes/01-overview-tokenization.md) · [代码示例](experiments/lecture01_tokenization.py) |
 | 02 | PyTorch 张量操作与资源核算 | [详细笔记](notes/02-pytorch-resource-accounting.md) · [核算示例](experiments/lecture02_accounting.py) |
+| 03 | 模型架构与超参数 | [详细笔记](notes/03-architectures-hyperparameters.md) · [数值示例](experiments/lecture03_math.py) |
+
+## 后续课程
+
+以下按 [2026 官方目录](https://cs336.stanford.edu/)记录，笔记随学习逐讲整理。
+
+| 讲次 | 官方主题 |
+|---|---|
+| 04 | 注意力替代方案与混合专家 MoE |
+| 05 | GPU 与 TPU |
+| 06 | GPU kernels 与 Triton |
+| 07 | 并行计算 |
+| 08 | 并行计算 |
+| 09 | 扩展规律 |
+| 10 | 推理 |
+| 11 | 扩展规律 |
+| 12 | 评价 |
+| 13 | 数据来源与数据集 |
+| 14 | 数据过滤、去重、混合与合成 |
+| 15 | 中期与后训练 SFT/RLHF |
+| 16 | 后训练与可验证奖励强化学习 RLVR |
+| 17 | 对齐与多模态 |
+| 18 | 嘉宾讲座 Daniel Selsam |
+| 19 | 嘉宾讲座 Dan Fu，补充课程 |
 
 第一讲先建立文字、token、编号、预测之间的关系，再解释字符级、字节级、词级方案，以及 BPE 的训练、编码和解码。
 

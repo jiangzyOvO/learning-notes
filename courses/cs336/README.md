@@ -12,7 +12,7 @@
 
 ## 配套作业
 
-- [Assignment 1：Basics](assignments/assignment1-basics/README.md)：2026-10-07 保存的作业进度，包含 BPE 训练、tokenizer，以及 Linear、Embedding、RMSNorm。对应检查为 29 passed、2 skipped；`from_files`、后续模型组件、训练流程和实验尚未完成。作业目录保留官方测试与依赖配置，可在该目录执行 `uv run pytest`；未完成的组件仍会报 `NotImplementedError`。
+- [Assignment 1：Basics](assignments/assignment1-basics/README.md)：2026-10-08 保存的作业进度，包含 BPE、tokenizer，以及截至 TransformerBlock 的模型组件。模型组件与 softmax 的检查为 12 passed、4 deselected；完整语言模型、训练流程和实验尚未完成。作业目录保留官方测试与依赖配置，具体检查命令见作业说明。
 
 ## 后续课程
 

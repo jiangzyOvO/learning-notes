@@ -6,6 +6,18 @@ For a full description of the assignment, see the assignment handout at
 If you see any issues with the assignment handout or code, please feel free to
 raise a GitHub issue or open a pull request with a fix.
 
+## 当前作业进度
+
+2026-10-08 保存的学习进度：已实现 BPE 训练、tokenizer、Linear、Embedding、RMSNorm、SiLU、SwiGLU、稳定 softmax、缩放点积注意力、因果多头注意力、RoPE 和 Pre-Norm TransformerBlock。
+
+[模型代码](cs336_basics/model.py)包含截至 TransformerBlock 的实现；[测试适配器](tests/adapters.py)连接已完成的组件。完整 TransformerLM、损失函数、优化器、训练流程和实验尚未完成。
+
+模型组件与 softmax 的检查结果为 **12 passed、4 deselected**，对应命令如下。未完成组件的测试入口仍保留 `NotImplementedError`。
+
+```sh
+uv run pytest tests/test_model.py tests/test_nn_utils.py -k 'not transformer_lm and not cross_entropy and not gradient_clipping' -q
+```
+
 ## Setup
 
 ### Environment
@@ -26,7 +38,7 @@ and the environment will be automatically solved and activated when necessary.
 uv run pytest
 ```
 
-Initially, all tests should fail with `NotImplementedError`s.
+Tests for unfinished components still fail with `NotImplementedError`s.
 To connect your implementation to the tests, complete the
 functions in [./tests/adapters.py](./tests/adapters.py).
 

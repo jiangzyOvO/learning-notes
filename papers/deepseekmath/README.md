@@ -55,16 +55,16 @@ SFT（监督微调）让模型学习如何按照示范组织解题过程。论�
 \left[
 \frac{1}{|o|}
 \sum_{t=1}^{|o|}
-\log\pi_\theta(o_t\mid q,o_{<t})
+\log\pi_\theta(o_t\mid q,o_{\lt t})
 \right].
 ```
 
-- $q$：问题；$o$：训练数据中的示范回答。
-- $o_t$：回答的第 $t$ 个 token；$o_{<t}$：它之前的示范回答前缀。
-- $\pi_\theta(o_t\mid q,o_{<t})$：当前模型给正确下一个 token 的概率。
+- $`q`$：问题；$`o`$：训练数据中的示范回答。
+- $`o_t`$：回答的第 $`t`$ 个 token；$`o_{\lt t}`$：它之前的示范回答前缀。
+- $`\pi_\theta(o_t\mid q,o_{\lt t})`$：当前模型给正确下一个 token 的概率。
 - 求和后除以回答长度，再对训练样本取平均。
 
-训练要**最大化**这个目标；若写成需要最小化的损失，则取负号：$\mathcal{L}_{\mathrm{SFT}}=-\mathcal{J}_{\mathrm{SFT}}$。
+训练要**最大化**这个目标；若写成需要最小化的损失，则取负号：$`\mathcal{L}_{\mathrm{SFT}}=-\mathcal{J}_{\mathrm{SFT}}`$。
 
 **SFT 使用示范回答中的前缀；后续 RL 则对模型自己采样生成的回答进行评价和训练。**
 
@@ -76,8 +76,8 @@ GRPO（Group Relative Policy Optimization，组相对策略优化）对同一道
 
 | 模型 | 回答的问题 | 在本文中的作用 |
 |---|---|---|
-| 奖励模型 $r_\phi$ | 这个回答或推理步骤有多好？ | 给采样结果打分 |
-| 价值模型 $V_\psi$ | 从当前前缀继续生成，预计能得到多少回报？ | PPO 结合价值预测和奖励，用 GAE 估计优势 |
+| 奖励模型 $`r_\phi`$ | 这个回答或推理步骤有多好？ | 给采样结果打分 |
+| 价值模型 $`V_\psi`$ | 从当前前缀继续生成，预计能得到多少回报？ | PPO 结合价值预测和奖励，用 GAE 估计优势 |
 
 **GRPO 省去的是独立价值模型；DeepSeekMath 仍然使用奖励模型。** 它减少了价值模型的训练开销，但每道题仍需要采样多个回答。
 
@@ -85,28 +85,28 @@ GRPO（Group Relative Policy Optimization，组相对策略优化）对同一道
 
 | 策略 | 含义 | 用途 |
 |---|---|---|
-| $\pi_\theta$ | 当前策略，参数正在更新 | 计算当前概率并反向传播 |
-| $\pi_{\mathrm{old}}$ | 生成本批回答时的策略快照 | 计算新旧策略的概率比 |
-| $\pi_{\mathrm{ref}}$ | 参考策略 | 通过 KL 约束偏离程度 |
+| $`\pi_\theta`$ | 当前策略，参数正在更新 | 计算当前概率并反向传播 |
+| $`\pi_{\mathrm{old}}`$ | 生成本批回答时的策略快照 | 计算新旧策略的概率比 |
+| $`\pi_{\mathrm{ref}}`$ | 参考策略 | 通过 KL 约束偏离程度 |
 
 旧策略和参考策略的用途不同。在一次策略更新中，二者都视为固定；迭代式 RL 可以在外层迭代中更新参考策略。
 
 ### PPO 提供的基本结构：概率比与裁剪
 
-对第 $i$ 个回答的第 $t$ 个 token，定义概率比：
+对第 $`i`$ 个回答的第 $`t`$ 个 token，定义概率比：
 
 ```math
 \rho_{i,t}(\theta)
 =
-\frac{\pi_\theta(o_{i,t}\mid q,o_{i,<t})}
-{\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,<t})}.
+\frac{\pi_\theta(o_{i,t}\mid q,o_{i,\lt t})}
+{\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,\lt t})}.
 ```
 
 比较的是**同一问题、同一前缀、同一 token** 在两个策略下的概率：
 
-- $\rho=1$：概率相同。
-- $\rho>1$：当前策略更倾向于生成它。
-- $\rho<1$：当前策略更不倾向于生成它。
+- $`\rho=1`$：概率相同。
+- $`\rho\gt 1`$：当前策略更倾向于生成它。
+- $`\rho\lt 1`$：当前策略更不倾向于生成它。
 
 用一个记号表示裁剪后的策略项：
 
@@ -115,26 +115,26 @@ GRPO（Group Relative Policy Optimization，组相对策略优化）对同一道
 =
 \min\left(
 \rho A,\;
-\operatorname{clip}(\rho,1-\varepsilon,1+\varepsilon)A
+\mathrm{clip}(\rho,1-\varepsilon,1+\varepsilon)A
 \right).
 ```
 
-其中 $A$ 是优势，决定强化或抑制的方向；$\varepsilon$ 是裁剪阈值。$\ell_\varepsilon$ 是本笔记为简化表达引入的记号。
+其中 $`A`$ 是优势，决定强化或抑制的方向；$`\varepsilon`$ 是裁剪阈值。$`\ell_\varepsilon`$ 是本笔记为简化表达引入的记号。
 
-例如 $\varepsilon=0.2$ 时：
+例如 $`\varepsilon=0.2`$ 时：
 
 | 优势 | 希望的变化 | 裁剪的作用 |
 |---|---|---|
-| $A>0$ | 提高对应 token 的概率 | 当 $\rho>1.2$ 时，该项不再奖励继续增大概率 |
-| $A<0$ | 降低对应 token 的概率 | 当 $\rho<0.8$ 时，该项不再奖励继续减小概率 |
+| $`A\gt 0`$ | 提高对应 token 的概率 | 当 $`\rho\gt 1.2`$ 时，该项不再奖励继续增大概率 |
+| $`A\lt 0`$ | 降低对应 token 的概率 | 当 $`\rho\lt 0.8`$ 时，该项不再奖励继续减小概率 |
 
-**裁剪改变的是目标函数，不是把实际概率比硬性限制在区间内。** 例如 $A=1$、$\rho=1.5$ 时，策略项为 $\min(1.5,1.2)=1.2$，但实际概率比仍然是 1.5。
+**裁剪改变的是目标函数，不是把实际概率比硬性限制在区间内。** 例如 $`A=1`$、$`\rho=1.5`$ 时，策略项为 $`\min(1.5,1.2)=1.2`$，但实际概率比仍然是 1.5。
 
 ### GRPO 如何计算优势？
 
-对同一道题，用旧策略采样 $G$ 个回答，奖励模型给出 $R_1,\ldots,R_G$。
+对同一道题，用旧策略采样 $`G`$ 个回答，奖励模型给出 $`R_1,\ldots,R_G`$。
 
-在**结果监督**下，每个回答只有一个最终奖励。先计算组内平均奖励 $\bar{R}$ 和标准差 $s_R$，再得到：
+在**结果监督**下，每个回答只有一个最终奖励。先计算组内平均奖励 $`\bar{R}`$ 和标准差 $`s_R`$，再得到：
 
 ```math
 \widehat{A}_{i,t}
@@ -148,7 +148,7 @@ GRPO（Group Relative Policy Optimization，组相对策略优化）对同一道
 
 同一回答的所有 token 共享这个优势，但它们的概率、裁剪状态和 KL 项不同，因此实际梯度仍可能不同。
 
-例如，一组奖励为 $(1,1,0,0)$。使用总体标准差演示时：
+例如，一组奖励为 $`(1,1,0,0)`$。使用总体标准差演示时：
 
 ```math
 \bar{R}=0.5,\qquad s_R=0.5,
@@ -170,7 +170,7 @@ GRPO（Group Relative Policy Optimization，组相对策略优化）对同一道
 ```math
 \pi_\theta(o\mid q)
 =\prod_{t=1}^{|o|}
-\pi_\theta(o_t\mid q,o_{<t}).
+\pi_\theta(o_t\mid q,o_{\lt t}).
 ```
 
 取对数后，乘积变为求和，再求梯度：
@@ -178,10 +178,10 @@ GRPO（Group Relative Policy Optimization，组相对策略优化）对同一道
 ```math
 \nabla_\theta\log\pi_\theta(o\mid q)
 =\sum_{t=1}^{|o|}
-\nabla_\theta\log\pi_\theta(o_t\mid q,o_{<t}).
+\nabla_\theta\log\pi_\theta(o_t\mid q,o_{\lt t}).
 ```
 
-对固定问题 $q$，若固定回答的奖励 $R(q,o)$ 不直接依赖策略参数 $\theta$，则利用 $\nabla_\theta\pi_\theta=\pi_\theta\nabla_\theta\log\pi_\theta$，得到：
+对固定问题 $`q`$，若固定回答的奖励 $`R(q,o)`$ 不直接依赖策略参数 $`\theta`$，则利用 $`\nabla_\theta\pi_\theta=\pi_\theta\nabla_\theta\log\pi_\theta`$，得到：
 
 ```math
 \nabla_\theta\mathbb{E}_{o\sim\pi_\theta}[R(q,o)]
@@ -194,7 +194,7 @@ R(q,o)\nabla_\theta\log\pi_\theta(o\mid q)
 
 这意味着：**提高平均奖励，可以通过按奖励加权、调整回答的对数概率来实现。无需对“回答是否正确”这个判断本身求导。**
 
-若基线 $b(q)$ 不依赖当前采样的回答，则：
+若基线 $`b(q)`$ 不依赖当前采样的回答，则：
 
 ```math
 \mathbb{E}\left[(R-b(q))\nabla_\theta\log\pi_\theta\right]
@@ -202,7 +202,7 @@ R(q,o)\nabla_\theta\log\pi_\theta(o\mid q)
 \mathbb{E}\left[R\nabla_\theta\log\pi_\theta\right].
 ```
 
-原因是 $\mathbb{E}[\nabla_\theta\log\pi_\theta]=0$。减去合适的基线可以降低采样波动，且不改变梯度估计的期望；单次采样的更新仍会改变。
+原因是 $`\mathbb{E}[\nabla_\theta\log\pi_\theta]=0`$。减去合适的基线可以降低采样波动，且不改变梯度估计的期望；单次采样的更新仍会改变。
 
 ### 加入 KL 后，完整损失是什么？
 
@@ -211,13 +211,13 @@ KL 正则用来约束当前策略对参考策略的偏离。对一个 token，�
 ```math
 z_{i,t}
 =
-\frac{\pi_{\mathrm{ref}}(o_{i,t}\mid q,o_{i,<t})}
-{\pi_\theta(o_{i,t}\mid q,o_{i,<t})},
+\frac{\pi_{\mathrm{ref}}(o_{i,t}\mid q,o_{i,\lt t})}
+{\pi_\theta(o_{i,t}\mid q,o_{i,\lt t})},
 \qquad
 k_{i,t}=z_{i,t}-\log z_{i,t}-1.
 ```
 
-$k_{i,t}$ 是论文采用的逐 token KL 估计量。由于 $\log z\le z-1$，它非负。固定上下文、且 token 按当前策略采样时，其期望等于 $D_{\mathrm{KL}}(\pi_\theta\|\pi_{\mathrm{ref}})$；复用旧策略样本进行多次更新时，不能无条件沿用这一无偏结论。
+$`k_{i,t}`$ 是论文采用的逐 token KL 估计量。由于 $`\log z\le z-1`$，它非负。固定上下文、且 token 按当前策略采样时，其期望等于 $`D_{\mathrm{KL}}(\pi_\theta\|\pi_{\mathrm{ref}})`$；复用旧策略样本进行多次更新时，不能无条件沿用这一无偏结论。
 
 对一道题，GRPO 最大化：
 
@@ -250,7 +250,7 @@ L_q(\theta)
 再对一批问题取平均，得到本次策略更新的损失。
 
 - 策略项根据优势强化或抑制回答。
-- $\beta$ 控制 KL 惩罚的强度。
+- $`\beta`$ 控制 KL 惩罚的强度。
 - 最大化目标中减去的 KL，就是最小化损失中加上的 KL，**并没有额外的第二个 KL 项**。
 - GRPO 将 KL 直接放入目标，不把它混入组内奖励的标准化计算。
 
@@ -258,9 +258,9 @@ L_q(\theta)
 
 1. **采样**：用旧策略生成回答，并记录各 token 的旧策略概率。
 2. **打分**：奖励模型评价回答或推理步骤。
-3. **计算优势**：根据组内奖励统计量计算 $\widehat{A}$。
+3. **计算优势**：根据组内奖励统计量计算 $`\widehat{A}`$。
 4. **计算损失**：把已有回答送入当前策略，计算当前概率、概率比、裁剪项，以及相对于参考策略的 KL 项。
-5. **反向传播**：固定优势、旧策略和参考策略，通过当前策略的概率对参数 $\theta$ 求梯度并更新。
+5. **反向传播**：固定优势、旧策略和参考策略，通过当前策略的概率对参数 $`\theta`$ 求梯度并更新。
 
 这里是在给已有回答计算概率，不是在根据 reward 重新生成一份回答。奖励影响概率的路径是：
 
@@ -272,13 +272,13 @@ L_q(\theta)
 \rightarrow \text{新的输出概率}.
 ```
 
-在策略项取 $\rho_{i,t}\widehat{A}_{i,t}$ 的区域，忽略平均系数，单个 token 的损失梯度是：
+在策略项取 $`\rho_{i,t}\widehat{A}_{i,t}`$ 的区域，忽略平均系数，单个 token 的损失梯度是：
 
 ```math
 \nabla_\theta L_{i,t}
 =
 -\widehat{A}_{i,t}\rho_{i,t}
-\nabla_\theta\log\pi_\theta(o_{i,t}\mid q,o_{i,<t})
+\nabla_\theta\log\pi_\theta(o_{i,t}\mid q,o_{i,\lt t})
 +\beta\nabla_\theta k_{i,t}.
 ```
 
@@ -286,7 +286,7 @@ L_q(\theta)
 
 ### 容易混淆的地方
 
-- **优势不等于梯度**：$\widehat{A}$ 是权重，还要与概率相关的梯度结合。
+- **优势不等于梯度**：$`\widehat{A}`$ 是权重，还要与概率相关的梯度结合。
 - **reward 不直接换算成概率**：它通过损失影响参数，参数变化后输出概率才变化。
 - **概率比为 1 不代表梯度为 0**：更新开始时新旧策略可能相同，但分母固定、分子可求导。
 - **clipping 不等于硬性限制概率比**：它限制过大有利变化带来的额外目标收益。
@@ -310,10 +310,10 @@ L_q(\theta)
 
 ### Pass@K 与 Maj@K
 
-- **Pass@K**：采样 $K$ 个回答，只要至少一个正确，就算该题通过。
-- **Maj@K**：采样 $K$ 个回答，票数最多的最终答案正确，才算该题通过。
+- **Pass@K**：采样 $`K`$ 个回答，只要至少一个正确，就算该题通过。
+- **Maj@K**：采样 $`K`$ 个回答，票数最多的最终答案正确，才算该题通过。
 
-在论文的实验设置下，RL 改善了 Maj@K，而较大 $K$ 下的 Pass@K 没有同步显著提高。作者据此认为，收益更像是让已有的正确解答更容易被输出。
+在论文的实验设置下，RL 改善了 Maj@K，而较大 $`K`$ 下的 Pass@K 没有同步显著提高。作者据此认为，收益更像是让已有的正确解答更容易被输出。
 
 ## 整体流程
 

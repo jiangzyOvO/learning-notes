@@ -61,7 +61,7 @@ SFT（监督微调）通过“问题—理想回答”样本训练模型，提�
 例如，异或规则可以写成：
 
 ```math
-f(A,B)=\operatorname{OR}(A,B)-\operatorname{AND}(A,B).
+f(A,B)=\mathrm{OR}(A,B)-\mathrm{AND}(A,B).
 ```
 
 当 A、B 都为真时，OR 的 $`+1`$ 与 AND 的 $`-1`$ 正好抵消，正确输出 0；只有一个条件为真时，输出为 1。

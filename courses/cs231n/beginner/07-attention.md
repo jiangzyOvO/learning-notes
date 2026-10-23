@@ -6,7 +6,9 @@
 
 普通一段网络写作 `y=F(x)`，F 可以包含若干卷积、归一化和激活。残差形式是：
 
-$$y=x+F(x).$$
+```math
+y=x+F(x).
+```
 
 若 x=`[2,5]`，F(x)=`[0.3,-0.2]`，输出就是 `[2.3,4.8]`。F(x) 是相对于输入的修正，不是损失值。
 
@@ -26,13 +28,20 @@ token 在这里表示一个位置对应的特征向量。它可以来自一个�
 
 以两个 token 为例：
 
-$$X=\begin{bmatrix}1&0\\0&1\end{bmatrix}.$$
+```math
+X=\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}.
+```
 
 每行一个 token，每个有两个特征；形状为 2×2。数字只是教学构造，不预先指定为耳朵、颜色等语义。
 
 ## 3. Q、K、V 是三种用途的向量
 
-$$Q=XW_Q,\qquad K=XW_K,\qquad V=XW_V.$$
+```math
+Q=XW_Q,\qquad K=XW_K,\qquad V=XW_V.
+```
 
 三组 W 是可学习参数。Q 用于发起匹配，K 用于参与匹配，V 是实际被加权读取的信息。
 
@@ -53,7 +62,9 @@ $$Q=XW_Q,\qquad K=XW_K,\qquad V=XW_V.$$
 
 **第三步：读取 Value。**
 
-$$o_1=0.6698[2,0]+0.3302[0,4]\approx[1.3395,1.3210].$$
+```math
+o_1=0.6698[2,0]+0.3302[0,4]\approx[1.3395,1.3210].
+```
 
 若把权重只保留两位小数 0.67、0.33，结果约为 `[1.34,1.32]`。这只是舍入精度不同。
 
@@ -65,7 +76,9 @@ $$o_1=0.6698[2,0]+0.3302[0,4]\approx[1.3395,1.3210].$$
 
 ## 5. 现在再看矩阵公式
 
-$$O=\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V.$$
+```math
+O=\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V.
+```
 
 | 量 | 自注意力中的形状 | 含义 |
 |---|---|---|
@@ -110,7 +123,9 @@ print(O)
 
 每块包含 `3×8×8=192` 个数，展平后通过共享的线性变换映射到 64 维：
 
-$$(16\times192)(192\times64)=16\times64.$$
+```math
+(16\times192)(192\times64)=16\times64.
+```
 
 16 是块数，64 是每块特征长度。不是图像的高、宽。
 
@@ -120,8 +135,12 @@ $$(16\times192)(192\times64)=16\times64.$$
 
 一种常见的 Pre-Norm 结构为：
 
-$$U=X+\operatorname{MHA}(\operatorname{LN}(X)),$$
-$$Y=U+\operatorname{MLP}(\operatorname{LN}(U)).$$
+```math
+\begin{aligned}
+U &= X+\operatorname{MHA}(\operatorname{LN}(X)), \\
+Y &= U+\operatorname{MLP}(\operatorname{LN}(U)).
+\end{aligned}
+```
 
 | 组件 | 分工 |
 |---|---|

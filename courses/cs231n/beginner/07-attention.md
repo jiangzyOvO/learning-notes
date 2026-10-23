@@ -77,7 +77,7 @@ o_1=0.6698[2,0]+0.3302[0,4]\approx[1.3395,1.3210].
 ## 5. 现在再看矩阵公式
 
 ```math
-O=\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V.
+O=\mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V.
 ```
 
 | 量 | 自注意力中的形状 | 含义 |
@@ -137,8 +137,8 @@ print(O)
 
 ```math
 \begin{aligned}
-U &= X+\operatorname{MHA}(\operatorname{LN}(X)), \\
-Y &= U+\operatorname{MLP}(\operatorname{LN}(U)).
+U &= X+\mathrm{MHA}(\mathrm{LN}(X)), \\
+Y &= U+\mathrm{MLP}(\mathrm{LN}(U)).
 \end{aligned}
 ```
 

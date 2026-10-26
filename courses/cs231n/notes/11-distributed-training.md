@@ -63,8 +63,11 @@
 
 若有 M 张 GPU，每张 B 个样本，本地平均损失为 L_m，则全局平均目标：
 
-$$L=\frac1M\sum_{m=1}^M L_m,\qquad
-\nabla L=\frac1M\sum_m\nabla L_m.$$
+```math
+L=\frac1M\sum_{m=1}^M L_m,\qquad
+\nabla L=\frac1M\sum_m\nabla L_m.
+```
+
 
 两个本地梯度为 [1,3] 与 [5,7] 时，全局平均梯度为 [3,5]。这源于求导与求和的线性关系。
 
@@ -129,11 +132,17 @@ $$L=\frac1M\sum_{m=1}^M L_m,\qquad
 
 若 W 按列拆为 [W₁,W₂]：
 
-$$XW=[XW_1,XW_2].$$
+```math
+XW=[XW_1,XW_2].
+```
+
 
 两卡分别计算不同输出通道，之后拼接。如果下一层按行拆 U=[U₁;U₂]，则：
 
-$$YU=Y_1U_1+Y_2U_2,$$
+```math
+YU=Y_1U_1+Y_2U_2,
+```
+
 
 两卡的部分结果需要相加。拼接与求和是不同通信语义，取决于矩阵怎样分块。
 
@@ -153,7 +162,10 @@ HFU 衡量硬件实际执行了多少运算，可能包含重计算。MFU 更关
 
 粗略写作：
 
-$$\operatorname{MFU}=\frac{\text{模型有效 FLOPs / 实际耗时}}{\text{所用设备总理论 FLOP/s}}.$$
+```math
+\mathrm{MFU}=\frac{\text{模型有效 FLOPs / 实际耗时}}{\text{所用设备总理论 FLOP/s}}.
+```
+
 
 假设有效计算量 10¹⁵ FLOPs，设备总峰值 10¹⁴ FLOP/s，实际用时 20 秒，则 MFU=0.5。
 

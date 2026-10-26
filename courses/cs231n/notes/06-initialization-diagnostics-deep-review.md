@@ -32,10 +32,11 @@
 
 ReLU 类层常用：
 
-$$
-\operatorname{Var}(W)=\frac{2}{\mathrm{fan\_in}},\qquad
-\operatorname{Std}(W)=\sqrt{\frac{2}{\mathrm{fan\_in}}}
-$$
+```math
+\mathrm{Var}(W)=\frac{2}{\mathrm{fan\_in}},\qquad
+\mathrm{Std}(W)=\sqrt{\frac{2}{\mathrm{fan\_in}}}
+```
+
 
 代码生成标准正态再乘标准差：
 
@@ -53,9 +54,10 @@ b = np.zeros(fan_out)
 
 设输入每维二阶矩约 q，权重独立、零均值、方差 σ²，加权和 a 的二阶矩约为 fan_in*σ²*q。若 a 的分布对称，则 ReLU 后：
 
-$$
-E[\operatorname{ReLU}(a)^2]=\frac12 E[a^2]
-$$
+```math
+E[\mathrm{ReLU}(a)^2]=\frac12 E[a^2]
+```
+
 
 于是下一层激活二阶矩约为 (fan_in*σ²/2)*q。希望尺度大致保持，就取 σ²≈2/fan_in。
 

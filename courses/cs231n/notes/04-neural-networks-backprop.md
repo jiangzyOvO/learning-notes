@@ -42,7 +42,10 @@
 
 本章的网络公式与 NumPy 代码统一采用**每一行一个样本**。设批量有 N 个样本，每个输入有 D 个特征，隐藏层宽度为 H，类别数为 C：
 
-$$A=XW_1+b_1,\qquad H_{act}=\operatorname{ReLU}(A),\qquad S=H_{act}W_2+b_2.$$
+```math
+A=XW_1+b_1,\qquad H_{act}=\mathrm{ReLU}(A),\qquad S=H_{act}W_2+b_2.
+```
+
 
 | 变量 | 形状 | 作用 |
 |---|---|---|
@@ -64,7 +67,10 @@ H 是隐藏层宽度，H_act 是激活数组，代码中把后者写成小写 `h
 
 若删除 ReLU：
 
-$$S=(XW_1+b_1)W_2+b_2=X(W_1W_2)+(b_1W_2+b_2).$$
+```math
+S=(XW_1+b_1)W_2+b_2=X(W_1W_2)+(b_1W_2+b_2).
+```
+
 
 这仍然只是一个仿射变换，叠很多层也不会因此获得非线性决策边界。非线性激活使层的组合无法简单合并。
 
@@ -90,14 +96,24 @@ ReLU 在 0 不可导，实现通常选择一个约定值，例如 0。它在正�
 
 图中前向例子为 f=(x+y)z，取 x=1、y=2、z=4：先得到 q=3，再得到 f=12。反向传播从 ∂f/∂f=1 开始。
 
-$$\frac{\partial f}{\partial q}=z=4,\qquad
-\frac{\partial f}{\partial z}=q=3.$$
+```math
+\frac{\partial f}{\partial q}=z=4,\qquad
+\frac{\partial f}{\partial z}=q=3.
+```
+
 
 因为 q=x+y：
 
-$$\frac{\partial f}{\partial x}
-=\frac{\partial f}{\partial q}\frac{\partial q}{\partial x}=4\times1=4,$$
-$$\frac{\partial f}{\partial y}=4.$$
+```math
+\frac{\partial f}{\partial x}
+=\frac{\partial f}{\partial q}\frac{\partial q}{\partial x}=4\times1=4,
+```
+
+
+```math
+\frac{\partial f}{\partial y}=4.
+```
+
 
 对一个节点，应区分：
 
@@ -117,8 +133,11 @@ $$\frac{\partial f}{\partial y}=4.$$
 
 考虑标量网络：
 
-$$a=wx+b,\quad h=\max(0,a),\quad \hat y=vh+c,
-\quad L=\frac12(\hat y-y)^2.$$
+```math
+a=wx+b,\quad h=\max(0,a),\quad \hat y=vh+c,
+\quad L=\frac12(\hat y-y)^2.
+```
+
 
 取 x=2，y=1，w=1，b=−1，v=2，c=0。平方损失用于让计算简单，这是教学回归例子，不是本课分类任务必须使用的损失。
 
@@ -126,19 +145,28 @@ $$a=wx+b,\quad h=\max(0,a),\quad \hat y=vh+c,
 
 **反向从最后一层开始：**
 
-$$\frac{\partial L}{\partial\hat y}=\hat y-y=1.$$
+```math
+\frac{\partial L}{\partial\hat y}=\hat y-y=1.
+```
+
 
 然后乘上输出层的局部导数：
 
-$$\frac{\partial L}{\partial v}=1\times h=1,\quad
+```math
+\frac{\partial L}{\partial v}=1\times h=1,\quad
 \frac{\partial L}{\partial c}=1,\quad
-\frac{\partial L}{\partial h}=1\times v=2.$$
+\frac{\partial L}{\partial h}=1\times v=2.
+```
+
 
 a>0，ReLU 导数为 1，所以 ∂L/∂a=2。继续向输入层传播：
 
-$$\frac{\partial L}{\partial w}=2x=4,\quad
+```math
+\frac{\partial L}{\partial w}=2x=4,\quad
 \frac{\partial L}{\partial b}=2,\quad
-\frac{\partial L}{\partial x}=2w=2.$$
+\frac{\partial L}{\partial x}=2w=2.
+```
+
 
 以学习率 0.1，同时更新所有参数：w=0.6，b=−1.2，v=1.9，c=−0.1。新的 a=0、h=0、ŷ=−0.1，损失变成 0.605。
 
@@ -150,11 +178,17 @@ $$\frac{\partial L}{\partial w}=2x=4,\quad
 
 对单个样本，正确类别为 k：
 
-$$L=-s_k+\log\sum_j e^{s_j}.$$
+```math
+L=-s_k+\log\sum_j e^{s_j}.
+```
+
 
 分别对 s_c 求导：第一项贡献 −1[c=k]；第二项贡献 e^{s_c}/Σ_j e^{s_j}=p_c。于是：
 
-$$\boxed{\frac{\partial L}{\partial s_c}=p_c-\mathbf1[c=k].}$$
+```math
+\boxed{\frac{\partial L}{\partial s_c}=p_c-\mathbf1[c=k].}
+```
+
 
 若正确类别是第一类、预测概率 p=[0.7,0.2,0.1]，则对分数的梯度为 [−0.3,0.2,0.1]。负梯度方向会提高正确类别分数，并降低其他类别分数。
 
@@ -164,19 +198,28 @@ $$\boxed{\frac{\partial L}{\partial s_c}=p_c-\mathbf1[c=k].}$$
 
 沿用**每一行一个样本**的约定，先只看一层：X∈Rᴺˣᴰ，W∈Rᴰˣᴹ，b∈Rᴹ。
 
-$$Y=XW+b.$$
+```math
+Y=XW+b.
+```
+
 
 设上游梯度 G=∂L/∂Y，形状 N×M：
 
-$$\boxed{\frac{\partial L}{\partial X}=GW^T},\qquad
+```math
+\boxed{\frac{\partial L}{\partial X}=GW^T},\qquad
 \boxed{\frac{\partial L}{\partial W}=X^TG},\qquad
-\boxed{\frac{\partial L}{\partial b}=\sum_{i=1}^N G_{i,:}}.$$
+\boxed{\frac{\partial L}{\partial b}=\sum_{i=1}^N G_{i,:}}.
+```
+
 
 为什么偏置要求和？因为同一个 b 被广播到每一行，影响了每个样本，反向时需要汇总所有贡献。
 
 为什么 W 的梯度是 XᵀG？逐元素展开 Y_im=Σ_d X_id W_dm+b_m，得：
 
-$$\frac{\partial L}{\partial W_{dm}}=\sum_i X_{id}G_{im},$$
+```math
+\frac{\partial L}{\partial W_{dm}}=\sum_i X_{id}G_{im},
+```
+
 
 恰好是矩阵乘法 XᵀG 的第 d,m 个元素。维度也吻合：(D×N)(N×M)=D×M。
 

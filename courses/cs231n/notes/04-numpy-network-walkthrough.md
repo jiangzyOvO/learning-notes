@@ -12,8 +12,15 @@
 
 网络的计算式是：
 
-$$A=XW_1,\qquad H=\sigma(A),\qquad \hat Y=HW_2,$$
-$$L=\sum_{i=1}^{N}\sum_{c=1}^{C}(\hat Y_{ic}-Y_{ic})^2.$$
+```math
+A=XW_1,\qquad H=\sigma(A),\qquad \hat Y=HW_2,
+```
+
+
+```math
+L=\sum_{i=1}^{N}\sum_{c=1}^{C}(\hat Y_{ic}-Y_{ic})^2.
+```
+
 
 **这是两个有权重的层，中间只有一个隐藏层。** 截图没有偏置，输出层也没有 Softmax。
 
@@ -47,7 +54,10 @@ h = 1 / (1 + np.exp(-a))          # (64, 100)
 
 原截图把这两行合成了一行。拆开后更容易理解：先线性组合，再逐元素经过 Sigmoid。
 
-$$\sigma(a)=\frac1{1+e^{-a}}.$$
+```math
+\sigma(a)=\frac1{1+e^{-a}}.
+```
+
 
 例如一个样本只有两个输入 [2,−1]，某个隐藏单元的权重为 [0.5,1]，则加权结果为 2×0.5+(−1)×1=0；Sigmoid(0)=0.5。
 
@@ -82,14 +92,20 @@ grad_y_pred = 2.0 * (y_pred - y)  # (64, 10)
 
 先盯住第二层中的一个权重 `w2[r, c]`。对样本 i：
 
-$$\hat Y_{ic}=\sum_r H_{ir}(W_2)_{rc}.$$
+```math
+\hat Y_{ic}=\sum_r H_{ir}(W_2)_{rc}.
+```
+
 
 其他量固定时，这个权重改变一点，输出的变化倍率就是 H_ir。再乘上损失对输出的导数，得到该样本对这个权重的梯度贡献。
 
 同一权重给所有样本共用，所以再把样本贡献相加：
 
-$$\frac{\partial L}{\partial(W_2)_{rc}}=
-\sum_i H_{ir}\frac{\partial L}{\partial\hat Y_{ic}}.$$
+```math
+\frac{\partial L}{\partial(W_2)_{rc}}=
+\sum_i H_{ir}\frac{\partial L}{\partial\hat Y_{ic}}.
+```
+
 
 恰好就是：
 
@@ -104,8 +120,11 @@ grad_w2 = h.T @ grad_y_pred       # (100, 64) @ (64, 10)
 
 同一个隐藏特征会影响多个输出，所以反过来求隐藏特征的梯度时，要汇总所有输出通道的贡献：
 
-$$\frac{\partial L}{\partial H_{ir}}=
-\sum_c\frac{\partial L}{\partial\hat Y_{ic}}(W_2)_{rc}.$$
+```math
+\frac{\partial L}{\partial H_{ir}}=
+\sum_c\frac{\partial L}{\partial\hat Y_{ic}}(W_2)_{rc}.
+```
+
 
 ```python
 grad_h = grad_y_pred @ w2.T       # (64, 10) @ (10, 100)
@@ -120,8 +139,11 @@ grad_h = grad_y_pred @ w2.T       # (64, 10) @ (10, 100)
 
 因为 h=σ(a)，而：
 
-$$\sigma'(a)=\frac{e^{-a}}{(1+e^{-a})^2}
-=\sigma(a)(1-\sigma(a))=h(1-h).$$
+```math
+\sigma'(a)=\frac{e^{-a}}{(1+e^{-a})^2}
+=\sigma(a)(1-\sigma(a))=h(1-h).
+```
+
 
 利用链式法则：
 

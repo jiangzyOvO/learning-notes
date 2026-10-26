@@ -10,15 +10,17 @@
 
 ## 2 只看一个权重为什么要累加样本贡献
 
-$$
+```math
 Z_{im}=\sum_{d=1}^{D}X_{id}W_{dm}+b_m
-$$
+```
+
 
 固定其他元素，Z_im 对 W_dm 的局部导数是 X_id。因为同一个 W_dm 被所有样本使用，反向贡献相加：
 
-$$
+```math
 \frac{\partial L}{\partial W_{dm}}=\sum_{i=1}^{N}X_{id}G_{im}
-$$
+```
+
 
 这恰好是 X.T@G 的元素定义，形状 `(D,N)@(N,M)=(D,M)`。转置不只是凑形状，它使矩阵乘法沿共享样本轴汇总贡献。
 
@@ -26,9 +28,10 @@ $$
 
 一个输入 X_id 影响该样本的每个输出 Z_im，对它的局部导数为 W_dm。把不同输出路径相加：
 
-$$
+```math
 \frac{\partial L}{\partial X_{id}}=\sum_{m=1}^{M}G_{im}W_{dm}
-$$
+```
+
 
 因此 grad_X=G@W.T，形状 `(N,M)@(M,D)=(N,D)`。梯度向前一层传递时，用该层旧权重，不用尚未更新完的新权重。
 
@@ -36,9 +39,10 @@ $$
 
 每个 b_m 加在全部样本的第 m 个输出上，其局部导数为 1：
 
-$$
+```math
 \frac{\partial L}{\partial b_m}=\sum_{i=1}^{N}G_{im}
-$$
+```
+
 
 代码 grad_b=G.sum(axis=0)。若 G 已经来自平均损失，不要再取 mean，否则多除一次 N。前向广播不增加独立偏置参数，反向要汇总共享偏置的所有使用位置。
 
@@ -65,9 +69,10 @@ grad_b = [5,7,9]
 
 ## 6 两层网络的前向与非线性
 
-$$
-A=XW_1+b_1,\qquad H=\operatorname{ReLU}(A),\qquad S=HW_2+b_2
-$$
+```math
+A=XW_1+b_1,\qquad H=\mathrm{ReLU}(A),\qquad S=HW_2+b_2
+```
+
 
 | 数组 | 形状 | 含义 |
 |---|---|---|
@@ -85,10 +90,11 @@ $$
 
 平均 Softmax 交叉熵与 L2：
 
-$$
+```math
 J=\frac{1}{N}\sum_i-\log P_{i,y_i}
 +\frac{\lambda}{2}\left(\sum W_1^2+\sum W_2^2\right)
-$$
+```
+
 
 先计算 ds=(P-one_hot)/N，为 `(N,C)`；沿输出层、ReLU、输入层反传：
 

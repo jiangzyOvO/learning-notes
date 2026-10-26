@@ -53,17 +53,26 @@
 
 显式参数表示可写为圆周：
 
-$$x(u)=\cos u,\qquad y(u)=\sin u.$$
+```math
+x(u)=\cos u,\qquad y(u)=\sin u.
+```
+
 
 给一个参数 u，就得到一个表面点。网格、参数曲面等都可以从显式几何角度理解。
 
 隐式形式写为：
 
-$$f(x,y)=x^2+y^2-1=0.$$
+```math
+f(x,y)=x^2+y^2-1=0.
+```
+
 
 给一个空间位置，函数值帮助判断它和表面的关系。单位球的有符号距离函数可写为：
 
-$$\operatorname{SDF}(x,y,z)=\sqrt{x^2+y^2+z^2}-1.$$
+```math
+\mathrm{SDF}(x,y,z)=\sqrt{x^2+y^2+z^2}-1.
+```
+
 
 本笔记约定内部为负、表面为 0、外部为正。点 (0,0,0) 的 SDF=−1，点 (2,0,0) 的 SDF=1。
 
@@ -91,7 +100,10 @@ $$\operatorname{SDF}(x,y,z)=\sqrt{x^2+y^2+z^2}-1.$$
 
 PointNet 的核心形式为：
 
-$$h=\operatorname{MAX}_{i=1}^N \phi(x_i),\qquad y=\rho(h).$$
+```math
+h=\mathrm{MAX}_{i=1}^N \phi(x_i),\qquad y=\rho(h).
+```
+
 
 φ 是每点共享的网络；MAX 对每个特征维度在所有点上取最大值，是对称聚合，因此不依赖点的排列。
 
@@ -105,8 +117,11 @@ $$h=\operatorname{MAX}_{i=1}^N \phi(x_i),\qquad y=\rho(h).$$
 
 预测点集与真实点集可能没有一一对应的索引。常用 Chamfer distance 的平方版本为：
 
-$$D_{CD}(P,Q)=\frac1{|P|}\sum_{p\in P}\min_{q\in Q}\|p-q\|^2
-+\frac1{|Q|}\sum_{q\in Q}\min_{p\in P}\|q-p\|^2.$$
+```math
+D_{CD}(P,Q)=\frac1{|P|}\sum_{p\in P}\min_{q\in Q}\|p-q\|^2
++\frac1{|Q|}\sum_{q\in Q}\min_{p\in P}\|q-p\|^2.
+```
+
 
 两个方向都要看，避免只覆盖一部分目标。不同论文可能用和而非均值、距离而非平方，比较数值前先核对定义。
 
@@ -118,7 +133,10 @@ Chamfer 不要求一一匹配，可能对点密度和局部覆盖有局限。Ear
 
 可以用 MLP 输入坐标 x 与形状编码 z，输出占据概率或 SDF：
 
-$$f_\theta(x,z)\rightarrow \text{占据或距离}.$$
+```math
+f_\theta(x,z)\rightarrow \text{占据或距离}.
+```
+
 
 训练可能来自三维标注、采样点的占据/距离值，也可以结合可微渲染使用二维监督。不同监督设置不能混为一谈。
 
@@ -136,9 +154,16 @@ $$f_\theta(x,z)\rightarrow \text{占据或距离}.$$
 
 一条相机射线可写为 r(t)=o+td。沿射线取样，在离散体渲染中：
 
-$$\alpha_i=1-e^{-\sigma_i\Delta_i},\qquad
-T_i=\exp\left(-\sum_{j<i}\sigma_j\Delta_j\right),$$
-$$\boxed{\hat C=\sum_i T_i\alpha_i c_i+T_{\rm end}c_{bg}.}$$
+```math
+\alpha_i=1-e^{-\sigma_i\Delta_i},\qquad
+T_i=\exp\left(-\sum_{j<i}\sigma_j\Delta_j\right),
+```
+
+
+```math
+\boxed{\hat C=\sum_i T_i\alpha_i c_i+T_{\mathrm{end}}c_{bg}.}
+```
+
 
 α_i 表示该段吸收比例，T_i 表示到达该段之前剩余的透射比例；前面的不透明区域会遮挡后面的颜色。
 

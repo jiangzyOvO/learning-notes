@@ -75,7 +75,10 @@
 
 在一个简化 MDP 中，策略与环境交互，最大化期望折扣回报：
 
-$$J(\pi)=\mathbb E_\pi\left[\sum_{t=0}^{T-1}\gamma^t r_t\right],\qquad 0\le\gamma\le1.$$
+```math
+J(\pi)=\mathbb{E}_\pi\left[\sum_{t=0}^{T-1}\gamma^t r_t\right],\qquad 0\le\gamma\le1.
+```
+
 
 γ 控制远期奖励的相对权重；具体无限时域理论通常要求相应的收敛条件。
 
@@ -91,7 +94,10 @@ V^π(s) 表示从状态 s 按策略 π 行动的预期未来回报；Q^π(s,a) �
 
 最优 Q 满足 Bellman 最优关系：
 
-$$Q^*(s,a)=\mathbb E[r+\gamma\max_{a'}Q^*(s',a')].$$
+```math
+Q^*(s,a)=\mathbb{E}[r+\gamma\max_{a'}Q^*(s',a')].
+```
+
 
 一个简单 Q-learning 目标为 y=r+γ max Q_target(s',a')，终止状态不再添加未来项。若 r=1、γ=0.9、下一步估计最优值为 4，则 y=4.6。
 
@@ -105,7 +111,10 @@ $$Q^*(s,a)=\mathbb E[r+\gamma\max_{a'}Q^*(s',a')].$$
 
 **Model-based** 学习状态如何变化，例如：
 
-$$\hat s_{t+1}=f_\theta(s_t,a_t),$$
+```math
+\hat s_{t+1}=f_\theta(s_t,a_t),
+```
+
 
 再在模型中比较不同动作序列的预计结果。
 
@@ -126,7 +135,10 @@ $$\hat s_{t+1}=f_\theta(s_t,a_t),$$
 
 Behavior Cloning 用专家示范 (o_t,a_t) 做监督学习。离散动作可用交叉熵，连续动作可用回归或概率分布目标：
 
-$$L_{BC}=-\sum_t\log\pi_\theta(a_t\mid o_t).$$
+```math
+L_{BC}=-\sum_t\log\pi_\theta(a_t\mid o_t).
+```
+
 
 它无需在每一步重新设计奖励，但质量受示范覆盖影响。训练时看的是专家访问的状态，部署时自己的小错误会把机器人带到没见过的状态，误差可能累积。
 

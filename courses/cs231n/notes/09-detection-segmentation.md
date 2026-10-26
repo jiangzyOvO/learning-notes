@@ -44,7 +44,10 @@
 
 若有 C 类，模型可以输出 N×C×H×W 分数，每个像素对 C 类做 softmax，再计算像素交叉熵。
 
-$$L=-\frac1{|\Omega|}\sum_{u\in\Omega}\log p_{u,y_u}.$$
+```math
+L=-\frac1{|\Omega|}\sum_{u\in\Omega}\log p_{u,y_u}.
+```
+
 
 Ω 是有效标注像素集合；忽略区域不能当作普通类别参与平均。训练在原分辨率还是下采样分辨率计算，要与标签对齐。
 
@@ -68,13 +71,19 @@ U-Net 将编码器中的高分辨率特征，通过跳跃连接送到解码器�
 
 常见训练目标包含分类损失和定位损失：
 
-$$L=L_{cls}+\lambda L_{box}.$$
+```math
+L=L_{cls}+\lambda L_{box}.
+```
+
 
 定位项通常只作用于匹配到真实对象的正样本。不是让所有背景候选框都向同一个真实框回归。
 
 ## 5. IoU：怎样衡量框的重合？
 
-$$\operatorname{IoU}(A,B)=\frac{|A\cap B|}{|A\cup B|}.$$
+```math
+\mathrm{IoU}(A,B)=\frac{|A\cap B|}{|A\cup B|}.
+```
+
 
 本章采用连续坐标面积 w×h，不使用旧代码里某些整数像素框的“+1”约定。
 
@@ -116,8 +125,11 @@ NMS 是一种抑制重复预测的后处理，不是训练损失；阈值太低�
 
 给定类别与 IoU 阈值，按置信度排序预测，与真实框匹配，得到 precision 和 recall：
 
-$$\operatorname{Precision}=\frac{TP}{TP+FP},\qquad
-\operatorname{Recall}=\frac{TP}{TP+FN}.$$
+```math
+\mathrm{Precision}=\frac{TP}{TP+FP},\qquad
+\mathrm{Recall}=\frac{TP}{TP+FN}.
+```
+
 
 AP 概括 precision-recall 曲线，mAP 再对类别等维度平均。不同数据集对 IoU 阈值、插值、最大检测数有不同约定。
 
@@ -160,18 +172,27 @@ Mask R-CNN 在检测分支之外为 RoI 预测掩码。框提供对象位置，�
 
 设最后一层卷积特征为 A_k(u,v)，k 是通道编号。若后面是全局平均池化，再接线性分类器，对类别 c 的分数可写为：
 
-$$s_c=\sum_k w_{ck}\frac1Z\sum_{u,v}A_k(u,v)+b_c,$$
+```math
+s_c=\sum_k w_{ck}\frac1Z\sum_{u,v}A_k(u,v)+b_c,
+```
+
 
 其中 Z 是空间位置数量。把求和顺序交换，可以看到各位置对分数的贡献来自：
 
-$$M_c(u,v)=\sum_k w_{ck}A_k(u,v).$$
+```math
+M_c(u,v)=\sum_k w_{ck}A_k(u,v).
+```
+
 
 这就是 CAM 的关键思路：用类别对应的线性权重重新组合特征图。它依赖特定的池化与分类头结构，不能不加修改地用在所有网络上。
 
 Grad-CAM 用目标分数对所选特征图的梯度估计通道重要性：
 
-$$\alpha_k^c=\frac1Z\sum_{u,v}\frac{\partial s_c}{\partial A_k(u,v)},\qquad
-M_c=\operatorname{ReLU}\left(\sum_k\alpha_k^c A_k\right).$$
+```math
+\alpha_k^c=\frac1Z\sum_{u,v}\frac{\partial s_c}{\partial A_k(u,v)},\qquad
+M_c=\mathrm{ReLU}\left(\sum_k\alpha_k^c A_k\right).
+```
+
 
 它更灵活：先固定模型，选类别和特征层，算梯度，空间平均得到通道权重，再加权合成热图。最后通常上采样叠加到输入图上。
 

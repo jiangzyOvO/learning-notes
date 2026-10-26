@@ -29,7 +29,10 @@
 
 上一章已经有了一个分类器：
 
-$$s=Wx+b.$$
+```math
+s=Wx+b.
+```
+
 
 给它一张图片，它输出每个类别的分数。接着使用 Softmax 得到概率，使用交叉熵衡量预测与真实标签之间的差距。
 
@@ -76,10 +79,11 @@ $$s=Wx+b.$$
 
 以 Softmax 交叉熵为例，正确类别是 y_i：
 
-$$
+```math
 \ell_i=-\log p_{i,y_i},\qquad
 J_{\mathrm{data}}(W,b)=\frac1N\sum_{i=1}^{N}\ell_i.
-$$
+```
+
 
 正确类别的概率越大，单个样本的损失越小。对所有训练样本求平均，就得到数据损失。
 
@@ -91,11 +95,12 @@ $$
 
 总目标写成：
 
-$$
+```math
 \boxed{
 J(W,b)=\frac1N\sum_{i=1}^{N}\ell_i(W,b)+\lambda R(W)
 }
-$$
+```
+
 
 - 第一项要求模型拟合训练数据。
 - R(W) 衡量我们不希望出现的参数特性，例如权重过大。
@@ -109,10 +114,11 @@ $$
 
 本笔记统一采用：
 
-$$
+```math
 R_{L2}(W)=\frac12\sum_{c=1}^{C}\sum_{d=1}^{D}W_{cd}^{2}
 =\frac12\|W\|_F^2.
-$$
+```
+
 
 这里矩阵的 Frobenius 范数平方，就是把所有元素平方后求和。它相当于把矩阵展开成向量后计算 L2 范数的平方。
 
@@ -120,16 +126,18 @@ $$
 
 前面的 1/2 是为了求导方便：
 
-$$
+```math
 \frac{\partial}{\partial W_{cd}}
 \left(\frac\lambda2 W_{cd}^2\right)=\lambda W_{cd}.
-$$
+```
+
 
 因此：
 
-$$
+```math
 \nabla_W J=\nabla_W J_{\mathrm{data}}+\lambda W.
-$$
+```
+
 
 如果课件或作业定义的是 R(W)=ΣW²，没有 1/2，那么正则化梯度就是 **2λW**。两种写法都正确，关键是损失和梯度要使用相同约定。
 
@@ -137,16 +145,29 @@ $$
 
 设输入 x=[1,1]，两组权重分别为：
 
-$$w_A=[2,0],\qquad w_B=[1,1].$$
+```math
+w_A=[2,0],\qquad w_B=[1,1].
+```
+
 
 它们对这个输入的分数相同：
 
-$$w_A^Tx=2,\qquad w_B^Tx=2.$$
+```math
+w_A^Tx=2,\qquad w_B^Tx=2.
+```
+
 
 L2 惩罚却不同：
 
-$$R(w_A)=\frac12(2^2+0^2)=2,$$
-$$R(w_B)=\frac12(1^2+1^2)=1.$$
+```math
+R(w_A)=\frac12(2^2+0^2)=2,
+```
+
+
+```math
+R(w_B)=\frac12(1^2+1^2)=1.
+```
+
 
 在这个例子中，L2 更偏好把权重分散到两个分量上，而不是把大小集中在一个分量上。
 
@@ -156,15 +177,24 @@ $$R(w_B)=\frac12(1^2+1^2)=1.$$
 
 使用一个可以手算的教学目标：
 
-$$J_\lambda(w)=(w-3)^2+\frac\lambda2w^2.$$
+```math
+J_\lambda(w)=(w-3)^2+\frac\lambda2w^2.
+```
+
 
 第一项希望 w 靠近 3，第二项希望 w 靠近 0。对 w 求导：
 
-$$J_\lambda'(w)=2(w-3)+\lambda w=(2+\lambda)w-6.$$
+```math
+J_\lambda'(w)=2(w-3)+\lambda w=(2+\lambda)w-6.
+```
+
 
 令导数为 0：
 
-$$\boxed{w^*=\frac6{2+\lambda}.}$$
+```math
+\boxed{w^*=\frac6{2+\lambda}.}
+```
+
 
 | λ | 最优参数 w* | 数据损失 (w*−3)² |
 |---|---:|---:|
@@ -184,7 +214,10 @@ $$\boxed{w^*=\frac6{2+\lambda}.}$$
 
 L1 惩罚为：
 
-$$R_{L1}(W)=\sum_{c,d}|W_{cd}|.$$
+```math
+R_{L1}(W)=\sum_{c,d}|W_{cd}|.
+```
+
 
 它常用于鼓励稀疏解，也就是一部分权重恰好为 0。注意，普通梯度更新的有限步结果不一定自动产生精确的 0；优化方法也有影响。
 
@@ -194,7 +227,10 @@ $$R_{L1}(W)=\sum_{c,d}|W_{cd}|.$$
 
 Elastic Net 把两种惩罚结合，例如：
 
-$$\lambda_1\sum|W_{cd}|+\frac{\lambda_2}{2}\sum W_{cd}^2.$$
+```math
+\lambda_1\sum|W_{cd}|+\frac{\lambda_2}{2}\sum W_{cd}^2.
+```
+
 
 课程还提到 Dropout 等其他方法作为后续内容提示，本章不展开。Batch Normalization 也可能产生正则化效果，但它的作用不能简单等同于给损失加一个惩罚项。
 
@@ -204,7 +240,10 @@ $$\lambda_1\sum|W_{cd}|+\frac{\lambda_2}{2}\sum W_{cd}^2.$$
 
 继续用更简单的函数：
 
-$$J(w)=(w-3)^2,\qquad J'(w)=2(w-3).$$
+```math
+J(w)=(w-3)^2,\qquad J'(w)=2(w-3).
+```
+
 
 - w=0 时，导数为 −6。增加一点 w，损失会下降。
 - w=5 时，导数为 4。减少一点 w，损失会下降。
@@ -216,14 +255,15 @@ $$J(w)=(w-3)^2,\qquad J'(w)=2(w-3).$$
 
 如果参数是 θ=[θ₁,…,θ_P]，那么：
 
-$$
+```math
 \nabla_\theta J=
 \begin{bmatrix}
-\partial J/\partial\theta_1\\
-\vdots\\
+\partial J/\partial\theta_1 \\
+\vdots \\
 \partial J/\partial\theta_P
 \end{bmatrix}.
-$$
+```
+
 
 每个偏导数回答：“暂时固定其他参数，只改变这一个参数，损失怎么变？”
 
@@ -235,11 +275,17 @@ $$
 
 对足够小的参数变化 Δθ，可用一阶近似：
 
-$$J(\theta+\Delta\theta)\approx J(\theta)+\nabla J(\theta)^T\Delta\theta.$$
+```math
+J(\theta+\Delta\theta)\approx J(\theta)+\nabla J(\theta)^T\Delta\theta.
+```
+
 
 令 Δθ=−η∇J：
 
-$$J(\theta-\eta\nabla J)\approx J(\theta)-\eta\|\nabla J\|_2^2.$$
+```math
+J(\theta-\eta\nabla J)\approx J(\theta)-\eta\|\nabla J\|_2^2.
+```
+
 
 只要 η>0 且梯度非零，近似式中的变化量就是负的。所以负梯度给出局部下降方向；在欧氏单位方向约束下，它是最陡下降方向。
 
@@ -251,22 +297,31 @@ $$J(\theta-\eta\nabla J)\approx J(\theta)-\eta\|\nabla J\|_2^2.$$
 
 单个坐标的前向差分是：
 
-$$\frac{\partial J}{\partial\theta_j}\approx
-\frac{J(\theta+h e_j)-J(\theta)}{h}.$$
+```math
+\frac{\partial J}{\partial\theta_j}\approx
+\frac{J(\theta+h e_j)-J(\theta)}{h}.
+```
+
 
 e_j 表示只在第 j 个位置为 1、其他位置为 0 的向量，所以 θ+h e_j 只改变一个参数。
 
 例如 J(w)=(w−3)²，在 w=0 附近取 h=0.001：
 
-$$\frac{J(0.001)-J(0)}{0.001}
-=\frac{8.994001-9}{0.001}=-5.999.$$
+```math
+\frac{J(0.001)-J(0)}{0.001}
+=\frac{8.994001-9}{0.001}=-5.999.
+```
+
 
 真实导数是 −6，结果很接近。
 
 常用于检查的中心差分是：
 
-$$\frac{\partial J}{\partial\theta_j}\approx
-\frac{J(\theta+h e_j)-J(\theta-h e_j)}{2h}.$$
+```math
+\frac{\partial J}{\partial\theta_j}\approx
+\frac{J(\theta+h e_j)-J(\theta-h e_j)}{2h}.
+```
+
 
 在函数足够光滑的条件下，中心差分通常比前向差分精确。h 也不是越小越好：过大会带来近似误差，过小会让浮点数相减时的舍入误差变明显。
 
@@ -286,7 +341,10 @@ J(w)=(w−3)² 可以直接推导出 J'(w)=2(w−3)。这就是解析求导的�
 
 公式是：
 
-$$\boxed{\theta_{t+1}=\theta_t-\eta_t g_t.}$$
+```math
+\boxed{\theta_{t+1}=\theta_t-\eta_t g_t.}
+```
+
 
 在全批量梯度下降中，g_t 就是当前完整目标的梯度。学习率 η 决定沿这个方向走多大一步。
 
@@ -296,18 +354,39 @@ $$\boxed{\theta_{t+1}=\theta_t-\eta_t g_t.}$$
 
 第一次：
 
-$$g_0=2(0-3)=-6,$$
-$$w_1=0-0.1\times(-6)=0.6.$$
+```math
+g_0=2(0-3)=-6,
+```
+
+
+```math
+w_1=0-0.1\times(-6)=0.6.
+```
+
 
 第二次：
 
-$$g_1=2(0.6-3)=-4.8,$$
-$$w_2=0.6-0.1\times(-4.8)=1.08.$$
+```math
+g_1=2(0.6-3)=-4.8,
+```
+
+
+```math
+w_2=0.6-0.1\times(-4.8)=1.08.
+```
+
 
 第三次：
 
-$$g_2=2(1.08-3)=-3.84,$$
-$$w_3=1.08-0.1\times(-3.84)=1.464.$$
+```math
+g_2=2(1.08-3)=-3.84,
+```
+
+
+```math
+w_3=1.08-0.1\times(-3.84)=1.464.
+```
+
 
 | 已完成更新次数 | 参数 w | 损失 J(w) |
 |---:|---:|---:|
@@ -322,7 +401,10 @@ $$w_3=1.08-0.1\times(-3.84)=1.464.$$
 
 这个例子的更新可以化简为：
 
-$$w_{t+1}-3=(1-2\eta)(w_t-3).$$
+```math
+w_{t+1}-3=(1-2\eta)(w_t-3).
+```
+
 
 也就是说，每更新一次，与最优点的偏差就乘以 1−2η。
 
@@ -343,14 +425,20 @@ $$w_{t+1}-3=(1-2\eta)(w_t-3).$$
 
 完整目标的数据梯度是：
 
-$$\nabla J_{\mathrm{data}}(\theta)=\frac1N\sum_{i=1}^{N}\nabla\ell_i(\theta).$$
+```math
+\nabla J_{\mathrm{data}}(\theta)=\frac1N\sum_{i=1}^{N}\nabla\ell_i(\theta).
+```
+
 
 如果 N 很大，每更新一次都计算所有样本，成本很高。可以选一小批样本，用它们的平均梯度估计整体方向。
 
 设第 t 步的小批量样本索引集合为 ℬ_t，实际大小为 B_t：
 
-$$g_t=\frac1{B_t}\sum_{i\in\mathcal B_t}\nabla\ell_i(\theta_t)
-+\lambda\nabla R(\theta_t).$$
+```math
+g_t=\frac1{B_t}\sum_{i\in\mathcal{B}_t}\nabla\ell_i(\theta_t)
++\lambda\nabla R(\theta_t).
+```
+
 
 再更新 θ_{t+1}=θ_t−η_tg_t。正则化项按照总目标约定加入一次，不要无意中又除以 N 或 B_t。
 
@@ -373,7 +461,10 @@ $$g_t=\frac1{B_t}\sum_{i\in\mathcal B_t}\nabla\ell_i(\theta_t)
 
 例如 N=1000，batch size=128，不丢弃最后一批：
 
-$$\text{每轮步数}=\lceil1000/128\rceil=8.$$
+```math
+\text{每轮步数}=\lceil1000/128\rceil=8.
+```
+
 
 前 7 批各有 128 个样本，最后一批有 104 个。最后一批的数据损失要除以实际大小 104。
 
@@ -420,8 +511,15 @@ for epoch in range(num_epochs):
 
 本节使用以下约定，初始 v₀=0，第 t 步先计算当前参数 θ_{t−1} 的梯度 g_t：
 
-$$v_t=\mu v_{t-1}+g_t,$$
-$$\theta_t=\theta_{t-1}-\eta_t v_t.$$
+```math
+v_t=\mu v_{t-1}+g_t,
+```
+
+
+```math
+\theta_t=\theta_{t-1}-\eta_t v_t.
+```
+
 
 - v 是带衰减的历史梯度累积量，与参数形状相同。
 - μ 控制过去的信息保留多少，通常满足 0≤μ<1。
@@ -429,8 +527,15 @@ $$\theta_t=\theta_{t-1}-\eta_t v_t.$$
 
 假设某一个方向连续三个梯度都是 2，μ=0.9：
 
-$$v_1=2,\qquad v_2=0.9\times2+2=3.8,$$
-$$v_3=0.9\times3.8+2=5.42.$$
+```math
+v_1=2,\qquad v_2=0.9\times2+2=3.8,
+```
+
+
+```math
+v_3=0.9\times3.8+2=5.42.
+```
+
 
 如果某个方向持续有一致的梯度，累积会加强这个方向；如果梯度正负交替，累积中会出现部分抵消。由此可以缓解某些方向上的震荡，并加快持续方向的移动。
 
@@ -446,8 +551,15 @@ $$v_3=0.9\times3.8+2=5.42.$$
 
 ### 10.1 AdaGrad：记录历次梯度平方和
 
-$$r_t=r_{t-1}+g_t\odot g_t,$$
-$$\theta_t=\theta_{t-1}-\eta\frac{g_t}{\sqrt{r_t}+\varepsilon}.$$
+```math
+r_t=r_{t-1}+g_t\odot g_t,
+```
+
+
+```math
+\theta_t=\theta_{t-1}-\eta\frac{g_t}{\sqrt{r_t}+\varepsilon}.
+```
+
 
 初始 r₀=0；⊙ 表示逐元素乘法，ε 是避免分母为零的小正数。
 
@@ -459,8 +571,15 @@ $$\theta_t=\theta_{t-1}-\eta\frac{g_t}{\sqrt{r_t}+\varepsilon}.$$
 
 ### 10.2 RMSProp：让很久以前的历史逐渐淡出
 
-$$r_t=\rho r_{t-1}+(1-\rho)g_t\odot g_t,$$
-$$\theta_t=\theta_{t-1}-\eta_t\frac{g_t}{\sqrt{r_t}+\varepsilon}.$$
+```math
+r_t=\rho r_{t-1}+(1-\rho)g_t\odot g_t,
+```
+
+
+```math
+\theta_t=\theta_{t-1}-\eta_t\frac{g_t}{\sqrt{r_t}+\varepsilon}.
+```
+
 
 这里 ρ 控制历史保留程度。与 AdaGrad 不同，它记录的是梯度平方的指数移动平均，不是从训练开始的全部平方和。
 
@@ -472,8 +591,15 @@ $$\theta_t=\theta_{t-1}-\eta_t\frac{g_t}{\sqrt{r_t}+\varepsilon}.$$
 
 Adam 同时维护两个统计量，初始 m₀=v₀=0：
 
-$$m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,$$
-$$v_t=\beta_2v_{t-1}+(1-\beta_2)g_t\odot g_t.$$
+```math
+m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,
+```
+
+
+```math
+v_t=\beta_2v_{t-1}+(1-\beta_2)g_t\odot g_t.
+```
+
 
 m 记录带衰减的梯度平均，v 记录带衰减的梯度平方平均。这里 v 的含义与上一节 Momentum 的 v 不同；变量名是约定，要看公式。
 
@@ -483,29 +609,48 @@ m 记录带衰减的梯度平均，v 记录带衰减的梯度平方平均。这�
 
 m 和 v 都从 0 开始，早期平均值会偏向 0。假设第一步 g₁=2，β₁=0.9、β₂=0.999：
 
-$$m_1=0.1\times2=0.2,$$
-$$v_1=0.001\times2^2=0.004.$$
+```math
+m_1=0.1\times2=0.2,
+```
+
+
+```math
+v_1=0.001\times2^2=0.004.
+```
+
 
 这两个值小，一部分原因只是初始记录为 0。于是使用：
 
-$$\hat m_t=\frac{m_t}{1-\beta_1^t},\qquad
-\hat v_t=\frac{v_t}{1-\beta_2^t}.$$
+```math
+\hat m_t=\frac{m_t}{1-\beta_1^t},\qquad
+\hat v_t=\frac{v_t}{1-\beta_2^t}.
+```
+
 
 第一步修正后：
 
-$$\hat m_1=2,\qquad \hat v_1=4.$$
+```math
+\hat m_1=2,\qquad \hat v_1=4.
+```
+
 
 指数移动平均在梯度统计平稳等假设下，会带上由零初始化导致的因子 1−βᵗ；除去该因子就是这个修正的由来。它不是消除所有采样噪声或其他统计偏差。
 
 ### 11.2 完整更新公式
 
-$$\boxed{
+```math
+\boxed{
 \theta_t=\theta_{t-1}-\eta_t\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}
-}.$$
+}.
+```
+
 
 在第一步的标量例子里，忽略 ε：
 
-$$\Delta\theta=-\eta\frac2{\sqrt4}=-\eta.$$
+```math
+\Delta\theta=-\eta\frac2{\sqrt4}=-\eta.
+```
+
 
 β₁=0.9、β₂=0.999 是常见设置，但不是所有任务都最优。Adam 也需要选择学习率，不能理解为“完全自动、不必调参”。
 
@@ -517,13 +662,19 @@ $$\Delta\theta=-\eta\frac2{\sqrt4}=-\eta.$$
 
 当目标包含 λ‖θ‖²/2，使用无动量的普通 SGD：
 
-$$\theta_t=\theta_{t-1}-\eta_t(g_t^{\mathrm{data}}+\lambda\theta_{t-1}).$$
+```math
+\theta_t=\theta_{t-1}-\eta_t(g_t^{\mathrm{data}}+\lambda\theta_{t-1}).
+```
+
 
 整理得到：
 
-$$\boxed{
+```math
+\boxed{
 \theta_t=(1-\eta_t\lambda)\theta_{t-1}-\eta_tg_t^{\mathrm{data}}.
-}$$
+}
+```
+
 
 第一项把旧权重乘上一个衰减系数，所以在这个明确的设定下，L2 惩罚与这样的乘性权重衰减等价。
 
@@ -540,10 +691,13 @@ AdamW 将这两个过程解耦：
 
 本笔记的公式约定为：
 
-$$\boxed{
+```math
+\boxed{
 \theta_t=(1-\eta_t\lambda)\theta_{t-1}
 -\eta_t\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}.
-}$$
+}
+```
+
 
 右侧两部分都使用当前更新前的状态。实践中也经常只对部分参数应用权重衰减，例如排除偏置或归一化层参数，具体取决于实现配置。
 
@@ -562,11 +716,12 @@ AdamW 的关键不是“Adam 加更大的 λ”，而是把衰减与自适应梯
 
 一个没有预热阶段的余弦调度是：
 
-$$
+```math
 \eta_t=\eta_{\min}+
 \frac12(\eta_{\max}-\eta_{\min})
 \left[1+\cos\left(\frac{\pi t}{T}\right)\right],\quad 0\le t\le T.
-$$
+```
+
 
 T 是这段衰减过程的总步数：开始时 η=η_max，结束时 η=η_min。如果先预热，再做余弦衰减，需要把衰减阶段的时间重新从 0 计数。
 
@@ -580,11 +735,17 @@ T 是这段衰减过程的总步数：开始时 η=η_max，结束时 η=η_min�
 
 一阶方法主要使用梯度。二阶方法还利用描述曲率的 Hessian 矩阵：
 
-$$H_{ij}=\frac{\partial^2J}{\partial\theta_i\partial\theta_j}.$$
+```math
+H_{ij}=\frac{\partial^2J}{\partial\theta_i\partial\theta_j}.
+```
+
 
 若参数总数为 P，H 是 P×P 矩阵。Newton 方法在适当条件下寻找方向 Δθ，使：
 
-$$H\Delta\theta=-g.$$
+```math
+H\Delta\theta=-g.
+```
+
 
 然后更新 θ←θ+Δθ。理论上也常写成 Δθ=−H⁻¹g，但实际数值计算通常考虑解线性方程，不必显式构造逆矩阵。
 
@@ -622,8 +783,15 @@ $$H\Delta\theta=-g.$$
 
 本章可以用两行公式串起来：
 
-$$\underbrace{J=J_{\mathrm{data}}+\lambda R}_{\text{决定希望得到什么参数}},$$
-$$\underbrace{\theta\leftarrow\theta-\eta\,\text{优化器处理后的梯度}}_{\text{决定怎样逐步更新参数}}.$$
+```math
+\underbrace{J=J_{\mathrm{data}}+\lambda R}_{\text{决定希望得到什么参数}},
+```
+
+
+```math
+\underbrace{\theta\leftarrow\theta-\eta\,\text{优化器处理后的梯度}}_{\text{决定怎样逐步更新参数}}.
+```
+
 
 第二行是理解用的概括；AdamW 还包含单独的衰减项，实际实现以对应完整公式为准。
 

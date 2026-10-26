@@ -40,7 +40,10 @@
 
 假设原视频为 30 fps，从中每隔 3 帧取一次样本，则采样率相当于 10 fps。取 T=16 帧时，首尾采样时刻间隔为：
 
-$$\frac{(16-1)\times3}{30}=1.5\text{ 秒}.$$
+```math
+\frac{(16-1)\times3}{30}=1.5\text{ 秒}.
+```
+
 
 也有人用 16/10=1.6 秒描述采样窗口长度，这取决于是否把最后一个采样间隔算进去。讨论时间范围时要说清约定。
 
@@ -54,7 +57,10 @@ $$\frac{(16-1)\times3}{30}=1.5\text{ 秒}.$$
 
 可以对每帧使用同一个 2D CNN，得到 f_t∈Rᴰ，再平均：
 
-$$\bar f=\frac1T\sum_t f_t.$$
+```math
+\bar f=\frac1T\sum_t f_t.
+```
+
 
 用 f̄ 分类很方便，但它忽略帧顺序。因此它可能适合依赖场景或外观的类别，却难区分某些相反动作。
 
@@ -72,17 +78,26 @@ $$\bar f=\frac1T\sum_t f_t.$$
 
 权重形状为：
 
-$$C_{out}\times C_{in}\times K_t\times K_h\times K_w.$$
+```math
+C_{out}\times C_{in}\times K_t\times K_h\times K_w.
+```
+
 
 每个输出元素汇总一个时空小块。含偏置参数量为：
 
-$$C_{out}(C_{in}K_tK_hK_w+1).$$
+```math
+C_{out}(C_{in}K_tK_hK_w+1).
+```
+
 
 例如输入通道 3、输出通道 16、核 3×3×3，参数量为 16(3×27+1)=1312；相应 2D 3×3 卷积是 448。
 
 如果时间轴输入 T=16，K_t=3、P_t=1、S_t=2，则：
 
-$$T_{out}=\left\lfloor\frac{16+2-3}{2}\right\rfloor+1=8.$$
+```math
+T_{out}=\left\lfloor\frac{16+2-3}{2}\right\rfloor+1=8.
+```
+
 
 时间与空间各用各的输出尺寸公式。某层只做空间池化，例如核 1×2×2，就保留时间长度。
 
@@ -126,8 +141,11 @@ Slow 路径以较低帧率捕捉较稳定的空间语义，Fast 路径以较高�
 
 区间 IoU 可写为：
 
-$$\operatorname{tIoU}([a,b],[c,d])=
-\frac{\max(0,\min(b,d)-\max(a,c))}{(b-a)+(d-c)-\text{交集长度}}.$$
+```math
+\mathrm{tIoU}([a,b],[c,d])=
+\frac{\max(0,\min(b,d)-\max(a,c))}{(b-a)+(d-c)-\text{交集长度}}.
+```
+
 
 例：真实区间 [2,6]、预测区间 [4,8]，交集长度 2，并集长度 6，tIoU=1/3。分类标签正确，并不代表起止位置也准确。
 

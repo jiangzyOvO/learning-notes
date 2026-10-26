@@ -49,12 +49,24 @@
 
 设输入窗口与滤波器分别为：
 
-$$X_{\rm patch}=\begin{bmatrix}1&2\\4&5\end{bmatrix},\qquad
-K=\begin{bmatrix}1&0\\0&-1\end{bmatrix}.$$
+```math
+X_{\mathrm{patch}}=\begin{bmatrix}
+1 & 2 \\
+4 & 5
+\end{bmatrix},\qquad
+K=\begin{bmatrix}
+1 & 0 \\
+0 & -1
+\end{bmatrix}.
+```
+
 
 无偏置时，该位置输出：
 
-$$1\times1+2\times0+4\times0+5\times(-1)=-4.$$
+```math
+1\times1+2\times0+4\times0+5\times(-1)=-4.
+```
+
 
 移动窗口后重复同样计算，就得到一个二维特征图。负数也是正常输出，之后是否经过 ReLU 由网络结构决定。
 
@@ -70,11 +82,17 @@ $$1\times1+2\times0+4\times0+5\times(-1)=-4.$$
 
 有 C_out 个滤波器，就得到 C_out 个输出通道。完整权重形状为：
 
-$$W_{\rm conv}\in\mathbb R^{C_{out}\times C_{in}\times K_h\times K_w}.$$
+```math
+W_{\mathrm{conv}}\in\mathbb{R}^{C_{out}\times C_{in}\times K_h\times K_w}.
+```
+
 
 包含每个输出通道一个偏置时，参数量为：
 
-$$\boxed{C_{out}(C_{in}K_hK_w+1).}$$
+```math
+\boxed{C_{out}(C_{in}K_hK_w+1).}
+```
+
 
 RGB 输入并不意味着输出也只有 3 通道。输出通道数由滤波器数量决定，是模型设计选择。
 
@@ -90,7 +108,10 @@ RGB 输入并不意味着输出也只有 3 通道。输出通道数由滤波器�
 
 对一个空间方向，输入长度 H，核大小 K，左右各填充 P，步长 S，无膨胀时：
 
-$$\boxed{H_{out}=\left\lfloor\frac{H+2P-K}{S}\right\rfloor+1.}$$
+```math
+\boxed{H_{out}=\left\lfloor\frac{H+2P-K}{S}\right\rfloor+1.}
+```
+
 
 含义是：先扣除窗口占用的长度，再看能够完整移动多少个步长，最后加上最初的位置。
 
@@ -105,11 +126,17 @@ $$\boxed{H_{out}=\left\lfloor\frac{H+2P-K}{S}\right\rfloor+1.}$$
 
 输入 N×3×32×32，使用 16 个 3×3 滤波器，S=1、P=1：
 
-$$H_{out}=W_{out}=\frac{32+2-3}{1}+1=32.$$
+```math
+H_{out}=W_{out}=\frac{32+2-3}{1}+1=32.
+```
+
 
 输出 N×16×32×32，参数量：
 
-$$16(3\times3\times3+1)=448.$$
+```math
+16(3\times3\times3+1)=448.
+```
+
 
 若改成 S=2、P=1，输出空间大小为 floor(31/2)+1=16。**空间分辨率减小不意味着参数量减少**：滤波器数量和形状没变，参数仍是 448。
 
@@ -121,7 +148,10 @@ $$16(3\times3\times3+1)=448.$$
 
 忽略偏置，乘加次数近似为：
 
-$$H_{out}W_{out}C_{out}C_{in}K_hK_w.$$
+```math
+H_{out}W_{out}C_{out}C_{in}K_hK_w.
+```
+
 
 上例为 32×32×16×3×3×3=442368 次乘加。统计 FLOPs 时，有的资料把一次乘加算 2 次浮点运算，需要说明约定。
 
@@ -133,7 +163,13 @@ $$H_{out}W_{out}C_{out}C_{in}K_hK_w.$$
 
 对窗口：
 
-$$\begin{bmatrix}1&3\\2&0\end{bmatrix},$$
+```math
+\begin{bmatrix}
+1 & 3 \\
+2 & 0
+\end{bmatrix},
+```
+
 
 最大池化输出 3，平均池化输出 1.5。
 
@@ -151,7 +187,10 @@ $$\begin{bmatrix}1&3\\2&0\end{bmatrix},$$
 
 一般递推可写成：
 
-$$j_l=j_{l-1}s_l,\qquad r_l=r_{l-1}+(k_l-1)j_{l-1},$$
+```math
+j_l=j_{l-1}s_l,\qquad r_l=r_{l-1}+(k_l-1)j_{l-1},
+```
+
 
 其中 r 是感受野大小，j 是相邻输出中心在原输入中的间距；起始 r₀=j₀=1。若存在膨胀，用有效核大小代替 k。
 

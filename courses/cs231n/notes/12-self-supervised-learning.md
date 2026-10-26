@@ -63,7 +63,10 @@ Masked Autoencoder 把图像切成 patch，随机遮掉部分。编码器通常�
 
 设 M 为被遮挡位置集合，一个简化目标是：
 
-$$L_{rec}=\frac1{|M|}\sum_{i\in M}\|\hat x_i-x_i\|_2^2.$$
+```math
+L_{rec}=\frac1{|M|}\sum_{i\in M}\|\hat x_i-x_i\|_2^2.
+```
+
 
 这里 x_i 是一个 patch 的目标向量，实际还可按 patch 内像素归一化等约定处理。
 
@@ -81,7 +84,10 @@ $$L_{rec}=\frac1{|M|}\sum_{i\in M}\|\hat x_i-x_i\|_2^2.$$
 
 定义编码器 h=f(x)，投影头 z=g(h)，常将 z 做 L2 归一化。余弦相似度为：
 
-$$\operatorname{sim}(z_i,z_j)=\frac{z_i^Tz_j}{\|z_i\|\|z_j\|}.$$
+```math
+\mathrm{sim}(z_i,z_j)=\frac{z_i^Tz_j}{\|z_i\|\|z_j\|}.
+```
+
 
 如果已归一化，直接点积即可。
 
@@ -89,8 +95,11 @@ $$\operatorname{sim}(z_i,z_j)=\frac{z_i^Tz_j}{\|z_i\|\|z_j\|}.$$
 
 对 anchor i，正样本为 i⁺，候选集合包含正样本和负样本：
 
-$$L_i=-\log\frac{\exp(\operatorname{sim}(z_i,z_{i^+})/\tau)}
-{\sum_{j\in\mathcal C_i}\exp(\operatorname{sim}(z_i,z_j)/\tau)}.$$
+```math
+L_i=-\log\frac{\exp(\mathrm{sim}(z_i,z_{i^+})/\tau)}
+{\sum_{j\in\mathcal{C}_i}\exp(\mathrm{sim}(z_i,z_j)/\tau)}.
+```
+
 
 τ>0 是温度。分母通常排除 anchor 自己，但必须包含正样本。
 
@@ -114,7 +123,10 @@ $$L_i=-\log\frac{\exp(\operatorname{sim}(z_i,z_{i^+})/\tau)}
 
 **MoCo：** 用队列保存更多 key 表示，减少负样本数量对当前 batch 的直接依赖；key encoder 用动量更新：
 
-$$\theta_k\leftarrow m\theta_k+(1-m)\theta_q.$$
+```math
+\theta_k\leftarrow m\theta_k+(1-m)\theta_q.
+```
+
 
 它让 key 表示缓慢变化。这里平均的是**网络参数**，不是第三章 Momentum 中的梯度速度，两者不要混淆。
 

@@ -46,9 +46,12 @@
 
 先看一个查询 q∈Rᵈᵏ，有 M 个 key k_j 与 value v_j：
 
-$$e_j=\frac{q^Tk_j}{\sqrt{d_k}},\qquad
+```math
+e_j=\frac{q^Tk_j}{\sqrt{d_k}},\qquad
 \alpha_j=\frac{e^{e_j}}{\sum_{r=1}^{M}e^{e_r}},\qquad
-z=\sum_{j=1}^{M}\alpha_jv_j.$$
+z=\sum_{j=1}^{M}\alpha_jv_j.
+```
+
 
 三步对应“打分、归一化、加权读取”。α 非负且和为 1，因此这个基础注意力输出是 value 的加权平均。
 
@@ -58,11 +61,17 @@ z=\sum_{j=1}^{M}\alpha_jv_j.$$
 
 打分为 [0,ln2,ln3]，指数为 [1,2,3]，所以：
 
-$$\alpha=[1/6,2/6,3/6].$$
+```math
+\alpha=[1/6,2/6,3/6].
+```
+
 
 输出：
 
-$$z=10/6+40/6+120/6=170/6\approx28.3333.$$
+```math
+z=10/6+40/6+120/6=170/6\approx28.3333.
+```
+
 
 这说明 key 影响权重，value 提供被汇总的内容。不能把 score 本身误当作最终输出。
 
@@ -70,8 +79,11 @@ $$z=10/6+40/6+120/6=170/6\approx28.3333.$$
 
 设 Q 是 N_q×d_k，K 是 N_k×d_k，V 是 N_k×d_v：
 
-$$\boxed{\operatorname{Attention}(Q,K,V)
-=\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V.}$$
+```math
+\boxed{\mathrm{Attention}(Q,K,V)
+=\mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V.}
+```
+
 
 | 中间量 | 形状 | 读法 |
 |---|---|---|
@@ -97,7 +109,10 @@ $$\boxed{\operatorname{Attention}(Q,K,V)
 
 **Self-attention：** Q、K、V 均从同一输入 X 投影：
 
-$$Q=XW_Q,\qquad K=XW_K,\qquad V=XW_V.$$
+```math
+Q=XW_Q,\qquad K=XW_K,\qquad V=XW_V.
+```
+
 
 X 为 N×D；例如 W_Q、W_K 为 D×d_k，W_V 为 D×d_v。同一序列中的每个位置都可以查询其他位置。
 
@@ -109,7 +124,10 @@ X 为 N×D；例如 W_Q、W_K 为 D×d_k，W_V 为 D×d_v。同一序列中的�
 
 对第 h 个头，计算不同投影下的 Attention(Q_h,K_h,V_h)，再拼接结果并线性变换：
 
-$$\operatorname{MultiHead}(X)=\operatorname{Concat}(Z_1,\ldots,Z_H)W_O.$$
+```math
+\mathrm{MultiHead}(X)=\mathrm{Concat}(Z_1,\ldots,Z_H)W_O.
+```
+
 
 H 表示头数，常见每头维度 D/H，但不是数学必须。不同头可学习不同关系，不过不能保证某个头固定代表“语法”或“颜色”。
 
@@ -139,8 +157,15 @@ Padding mask 则处理补齐长度的无效位置。全被屏蔽的一行会带�
 
 使用方便理解的 Pre-Norm 写法：
 
-$$U=X+\operatorname{MHA}(\operatorname{LN}(X)),$$
-$$Y=U+\operatorname{MLP}(\operatorname{LN}(U)).$$
+```math
+U=X+\mathrm{MHA}(\mathrm{LN}(X)),
+```
+
+
+```math
+Y=U+\mathrm{MLP}(\mathrm{LN}(U)).
+```
+
 
 - 注意力让不同 token 交换信息。
 - MLP 通常独立处理每个 token，并在所有位置共享参数。
@@ -155,7 +180,10 @@ $$Y=U+\operatorname{MLP}(\operatorname{LN}(U)).$$
 
 输入为 224×224×3，切成互不重叠的 16×16 patch：
 
-$$N=(224/16)^2=196.$$
+```math
+N=(224/16)^2=196.
+```
+
 
 每块有 16×16×3=768 个数，展平后线性映射到 D 维，加位置表示，得到 196×D 的序列。
 
@@ -169,7 +197,10 @@ patch 投影也可以通过核大小和步长均为 16 的卷积实现。ViT 并
 
 **SwiGLU：** 通过两个投影分支做门控，再投影回模型维度，例如：
 
-$$\operatorname{SwiGLU}(X)=[\operatorname{SiLU}(XW_1)\odot(XW_2)]W_3.$$
+```math
+\mathrm{SwiGLU}(X)=[\mathrm{SiLU}(XW_1)\odot(XW_2)]W_3.
+```
+
 
 **MoE：** 保存多个专家 MLP，路由器为各 token 选择部分专家。总参数量可以很大，但每个 token 只激活其中一部分。路由、负载均衡与通信也有成本，不能把“总参数多”直接当作“每次计算同样多”。
 

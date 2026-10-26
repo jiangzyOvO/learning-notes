@@ -12,9 +12,10 @@
 
 同一特征在两个样本中为 [1,3]：均值 μ=2，方差 v=((1-2)²+(3-2)²)/2=1。忽略 epsilon 时标准化为 [-1,1]；设置 gamma=2、beta=1，输出为 [-1,3]。
 
-$$
+```math
 \hat x=\frac{x-\mu}{\sqrt{v+\varepsilon}},\qquad y=\gamma\hat x+\beta
-$$
+```
+
 
 epsilon 是小正数，零方差时避免除零。精确加入 epsilon 后 x_hat 方差为 v/(v+epsilon)，不严格等于 1；最终输出还受 gamma、beta 影响，所以 BN 不强迫后续响应始终零均值单位方差。
 
@@ -63,9 +64,10 @@ mean、var 为 `(1,D)`；gamma、beta 为 `(D,)`。二维 LN 改为 axis=1，mea
 
 对一组被共同归一化的 M 个元素，令 u=g*gamma，r=1/sqrt(var+eps)：
 
-$$
+```math
 \nabla_x L=\frac{r}{M}\left(Mu-\sum u-\hat x\sum(u\hat x)\right)
-$$
+```
+
 
 这是逐组形式，求和沿归一化轴；本篇二维 BN 为轴 0，LN 为轴 1。gamma、beta 梯度仍沿它们共享的样本位置求和：dgamma=sum(g*x_hat,axis=0)、dbeta=sum(g,axis=0)。上游已有均值损失系数时，不在这里重复对整个损失平均。
 
@@ -75,9 +77,10 @@ $$
 
 设保留概率 q，掩码 m 取 0 或 1，常用 inverted dropout：
 
-$$
+```math
 \tilde h=\frac{m h}{q}
-$$
+```
+
 
 训练屏蔽部分激活，保留的乘 1/q；评估直接使用 h，不再乘 q。本篇 q 是保留概率，PyTorch Dropout 的参数 p 是丢弃概率，q=1-p。
 

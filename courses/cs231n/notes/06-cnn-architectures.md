@@ -46,10 +46,17 @@
 
 先看一维特征 x₁,…,x_B。训练时计算：
 
-$$\mu_B=\frac1B\sum_i x_i,\qquad
-\sigma_B^2=\frac1B\sum_i(x_i-\mu_B)^2,$$
-$$\hat x_i=\frac{x_i-\mu_B}{\sqrt{\sigma_B^2+\varepsilon}},\qquad
- y_i=\gamma\hat x_i+\beta.$$
+```math
+\mu_B=\frac1B\sum_i x_i,\qquad
+\sigma_B^2=\frac1B\sum_i(x_i-\mu_B)^2,
+```
+
+
+```math
+\hat x_i=\frac{x_i-\mu_B}{\sqrt{\sigma_B^2+\varepsilon}},\qquad
+ y_i=\gamma\hat x_i+\beta.
+```
+
 
 γ、β 是可学习参数，允许网络调整标准化后的尺度和偏移。BN 不会强迫所有后续特征永远均值 0、方差 1。
 
@@ -77,7 +84,10 @@ BN 往往有助于优化，但不能保证修复错误初始化或所有梯度�
 
 设保留概率 q，掩码 m_j∼Bernoulli(q)。常用的 inverted dropout 为：
 
-$$\tilde h_j=\frac{m_jh_j}{q}.$$
+```math
+\tilde h_j=\frac{m_jh_j}{q}.
+```
+
 
 这样 E[ h̃_j ]=h_j。训练时有的激活归零，保留下来的乘 1/q；推理时不丢弃，也不再缩放。
 
@@ -125,7 +135,10 @@ fan_in 是一个输出单元接收的输入数量；卷积中通常是 C_inK_hK_
 
 ### ResNet 的关键公式
 
-$$y=x+F(x).$$
+```math
+y=x+F(x).
+```
+
 
 F(x) 表示卷积、归一化、激活等组成的残差分支。如果需要的变换接近恒等映射，残差分支只需要学一个接近 0 的修正。
 
@@ -133,7 +146,10 @@ F(x) 表示卷积、归一化、激活等组成的残差分支。如果需要的
 
 其导数包含：
 
-$$\frac{\partial y}{\partial x}=I+\frac{\partial F}{\partial x}.$$
+```math
+\frac{\partial y}{\partial x}=I+\frac{\partial F}{\partial x}.
+```
+
 
 恒等项为信息与梯度提供直接路径，但并不保证梯度永远不会消失或爆炸。
 
@@ -143,7 +159,10 @@ $$\frac{\partial y}{\partial x}=I+\frac{\partial F}{\partial x}.$$
 
 常见图像预处理是按通道减均值、除标准差：
 
-$$x'_{c,h,w}=\frac{x_{c,h,w}-\mu_c}{\sigma_c}.$$
+```math
+x'_{c,h,w}=\frac{x_{c,h,w}-\mu_c}{\sigma_c}.
+```
+
 
 从头训练时，用训练集计算统计量，避免把测试集信息带入选择过程。使用预训练模型时，通常应遵循该模型训练时的预处理约定，包括像素范围、通道顺序、均值和标准差。
 

@@ -50,9 +50,12 @@
 
 若训练样本按独立同分布建模：
 
-$$\max_\theta\prod_i p_\theta(x_i)
+```math
+\max_\theta\prod_i p_\theta(x_i)
 \quad\Longleftrightarrow\quad
-\min_\theta-\sum_i\log p_\theta(x_i).$$
+\min_\theta-\sum_i\log p_\theta(x_i).
+```
+
 
 取对数把乘法变加法，既方便优化，也避免许多小概率相乘导致的数值问题。
 
@@ -60,7 +63,10 @@ $$\max_\theta\prod_i p_\theta(x_i)
 
 对 x=(x₁,…,x_T)，概率链式法则给出：
 
-$$\boxed{p_\theta(x)=\prod_{t=1}^{T}p_\theta(x_t\mid x_{<t}).}$$
+```math
+\boxed{p_\theta(x)=\prod_{t=1}^{T}p_\theta(x_t\mid x_{<t}).}
+```
+
 
 这是精确的概率分解，不依赖“相邻像素独立”的假设。模型能力的限制在于如何参数化这些条件分布。
 
@@ -82,8 +88,11 @@ $$\boxed{p_\theta(x)=\prod_{t=1}^{T}p_\theta(x_t\mid x_{<t}).}$$
 
 一个确定性自编码器：
 
-$$z=f_\phi(x),\qquad\hat x=g_\theta(z),\qquad
-L=\|\hat x-x\|^2.$$
+```math
+z=f_\phi(x),\qquad\hat x=g_\theta(z),\qquad
+L=\|\hat x-x\|^2.
+```
+
 
 编码器将输入映射到表示，解码器尝试重建。瓶颈或其他约束可以迫使它保留有用结构，而不是简单复制。
 
@@ -95,11 +104,17 @@ VAE 在此基础上引入明确的概率模型与先验，解决“怎样系统�
 
 先抽取潜变量 z，再根据 z 生成 x：
 
-$$z\sim p(z),\qquad x\sim p_\theta(x\mid z).$$
+```math
+z\sim p(z),\qquad x\sim p_\theta(x\mid z).
+```
+
 
 常设 p(z)=N(0,I)。边缘分布为：
 
-$$p_\theta(x)=\int p_\theta(x\mid z)p(z)\,dz.$$
+```math
+p_\theta(x)=\int p_\theta(x\mid z)p(z)\,dz.
+```
+
 
 直觉是：很多不同 z 都可能生成与当前 x 相近的数据，所以要把所有可能性积分起来。高维、非线性的解码器通常让这个积分难以直接计算。
 
@@ -121,8 +136,11 @@ $$p_\theta(x)=\int p_\theta(x\mid z)p(z)\,dz.$$
 
 第一遍先把负 ELBO 读成：
 
-$$\text{训练损失}=\underbrace{-\mathbb E_q\log p_\theta(x\mid z)}_{\text{让 z 能解释原图}}
-+\underbrace{D_{KL}(q_\phi(z\mid x)\|p(z))}_{\text{让编码分布与先验保持接近}}.$$
+```math
+\text{训练损失}=\underbrace{-\mathbb{E}_q\log p_\theta(x\mid z)}_{\text{让 z 能解释原图}}
++\underbrace{D_{KL}(q_\phi(z\mid x)\|p(z))}_{\text{让编码分布与先验保持接近}}.
+```
+
 
 前者要求“保留足够信息”，后者要求“潜空间具有便于从先验采样的组织”。两者需要权衡，不能只优化其中一项。下面推导解释这两项为何能一起成为对数似然的下界；**初读时可先跳到第 7–9 节，跟着一次训练与生成流程算**。
 
@@ -130,27 +148,39 @@ $$\text{训练损失}=\underbrace{-\mathbb E_q\log p_\theta(x\mid z)}_{\text{让
 
 将 q_φ(z|x) 乘进去再除出去：
 
-$$\log p_\theta(x)
-=\log\mathbb E_{q_\phi(z|x)}\left[
-\frac{p_\theta(x,z)}{q_\phi(z|x)}\right].$$
+```math
+\log p_\theta(x)
+=\log\mathbb{E}_{q_\phi(z|x)}\left[
+\frac{p_\theta(x,z)}{q_\phi(z|x)}\right].
+```
+
 
 利用 log 是凹函数，Jensen 不等式得到：
 
-$$\log p_\theta(x)\ge
-\mathbb E_q[\log p_\theta(x,z)-\log q_\phi(z|x)].$$
+```math
+\log p_\theta(x)\ge
+\mathbb{E}_q[\log p_\theta(x,z)-\log q_\phi(z|x)].
+```
+
 
 再用 p_θ(x,z)=p_θ(x|z)p(z)：
 
-$$\boxed{\operatorname{ELBO}(x)=
-\mathbb E_q[\log p_\theta(x|z)]-
-D_{KL}(q_\phi(z|x)\|p(z)).}$$
+```math
+\boxed{\mathrm{ELBO}(x)=
+\mathbb{E}_q[\log p_\theta(x|z)]-
+D_{KL}(q_\phi(z|x)\|p(z)).}
+```
+
 
 第一项希望从编码得到的 z 能解释原图；第二项让近似后验与所选先验保持适当接近，使潜空间可以用于采样。
 
 更精确地：
 
-$$\log p_\theta(x)=\operatorname{ELBO}(x)
-+D_{KL}(q_\phi(z|x)\|p_\theta(z|x)).$$
+```math
+\log p_\theta(x)=\mathrm{ELBO}(x)
++D_{KL}(q_\phi(z|x)\|p_\theta(z|x)).
+```
+
 
 由于 KL≥0，ELBO 确实是下界。只有当近似后验等于真实后验时，此差距才为 0。
 
@@ -160,12 +190,18 @@ $$\log p_\theta(x)=\operatorname{ELBO}(x)
 
 编码器输出 μ(x) 和 logσ²(x)，定义对角高斯：
 
-$$q_\phi(z|x)=\mathcal N(\mu,\operatorname{diag}(\sigma^2)).$$
+```math
+q_\phi(z|x)=\mathcal{N}(\mu,\mathrm{diag}(\sigma^2)).
+```
+
 
 与标准正态先验的 KL 有闭式：
 
-$$\boxed{D_{KL}(q\|p)=\frac12\sum_j
-(\mu_j^2+\sigma_j^2-1-\log\sigma_j^2).}$$
+```math
+\boxed{D_{KL}(q\|p)=\frac12\sum_j
+(\mu_j^2+\sigma_j^2-1-\log\sigma_j^2).}
+```
+
 
 一维例子 μ=1、σ=2，则 KL=(1+4−1−ln4)/2≈1.3069。若 μ=0、σ=1，则 KL=0。
 
@@ -181,7 +217,10 @@ $$\boxed{D_{KL}(q\|p)=\frac12\sum_j
 
 直接写 z∼N(μ,σ²) 不方便沿采样操作求梯度。可以改写为：
 
-$$\varepsilon\sim\mathcal N(0,I),\qquad z=\mu+\sigma\odot\varepsilon.$$
+```math
+\varepsilon\sim\mathcal{N}(0,I),\qquad z=\mu+\sigma\odot\varepsilon.
+```
+
 
 随机性来自与参数无关的 ε，μ、σ 到 z 的路径则是普通可微运算：∂z/∂μ=1，∂z/∂σ=ε。
 

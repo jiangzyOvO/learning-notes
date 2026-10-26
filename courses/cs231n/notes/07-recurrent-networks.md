@@ -47,8 +47,15 @@ RNN 的基本办法是：每读取一个输入，就更新一个隐藏状态，�
 
 列向量约定：输入 x_t∈Rᴰ，隐藏状态 h_t∈Rᴴ，输出分数 s_t∈Rᶜ：
 
-$$h_t=\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b_h),$$
-$$s_t=W_{hy}h_t+b_y.$$
+```math
+h_t=\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b_h),
+```
+
+
+```math
+s_t=W_{hy}h_t+b_y.
+```
+
 
 W_xh 是 H×D，W_hh 是 H×H，W_hy 是 C×H。初始 h₀ 可设零或采用其他约定。
 
@@ -72,7 +79,10 @@ W_xh 是 H×D，W_hh 是 H×H，W_hy 是 C×H。初始 h₀ 可设零或采用�
 
 设序列为 x₁,…,x_T，根据概率链式法则：
 
-$$p(x_1,\ldots,x_T)=\prod_{t=1}^{T}p(x_t\mid x_{<t}).$$
+```math
+p(x_1,\ldots,x_T)=\prod_{t=1}^{T}p(x_t\mid x_{<t}).
+```
+
 
 模型读取当前 token，更新状态，预测下一个 token 的分布。token 可以是字符、子词等单位，不一定等于一个汉字或英文单词。
 
@@ -84,7 +94,10 @@ $$p(x_1,\ldots,x_T)=\prod_{t=1}^{T}p(x_t\mid x_{<t}).$$
 
 若分数为 s，温度 τ>0 时：
 
-$$p_j=\frac{\exp(s_j/\tau)}{\sum_k\exp(s_k/\tau)}.$$
+```math
+p_j=\frac{\exp(s_j/\tau)}{\sum_k\exp(s_k/\tau)}.
+```
+
 
 较小温度使分布更集中，较大温度使分布更平坦。温度改变随机性，不保证语义正确性。贪心选择每一步概率最大的 token，也不保证找到全序列概率最大的结果。
 
@@ -94,7 +107,10 @@ CNN 先把图片转换为特征向量 v，然后用它初始化隐藏状态、�
 
 目标是：
 
-$$p(w_1,\ldots,w_T\mid I)=\prod_t p(w_t\mid w_{<t},I).$$
+```math
+p(w_1,\ldots,w_T\mid I)=\prod_t p(w_t\mid w_{<t},I).
+```
+
 
 模型需要把视觉信息与已经生成的词结合起来。仅得到流畅语句不代表它忠实于图片；语言先验可能让模型“补出”实际上没有出现的物体。
 
@@ -106,8 +122,11 @@ Backpropagation Through Time 并不是另一套求导法则。先把循环展开
 
 如果总损失 L=Σ_t ℓ_t，同一个 W_hh 在多个时间步出现，其梯度必须把每处贡献相加：
 
-$$\frac{\partial L}{\partial W_{hh}}=\sum_t
-\left.\frac{\partial L}{\partial W_{hh}}\right|_{\text{第 }t\text{ 次使用}}.$$
+```math
+\frac{\partial L}{\partial W_{hh}}=\sum_t
+\left.\frac{\partial L}{\partial W_{hh}}\right|_{\text{第 }t\text{ 次使用}}.
+```
+
 
 每一步隐藏状态影响当前输出，也通过未来状态影响后面的损失，因此不能只对当前时间步求局部梯度。
 
@@ -117,8 +136,11 @@ $$\frac{\partial L}{\partial W_{hh}}=\sum_t
 
 对 tanh RNN：
 
-$$\frac{\partial h_t}{\partial h_{t-1}}
-=\operatorname{diag}(1-h_t^2)W_{hh}.$$
+```math
+\frac{\partial h_t}{\partial h_{t-1}}
+=\mathrm{diag}(1-h_t^2)W_{hh}.
+```
+
 
 跨越多步后，梯度要乘很多这样的矩阵。简化到标量，每步倍率若为 0.5，20 步后约为 9.54×10⁻⁷；若为 1.5，20 步后约为 3325。
 
@@ -126,7 +148,10 @@ $$\frac{\partial h_t}{\partial h_{t-1}}
 
 **梯度裁剪**通常用于控制爆炸。例如梯度范数超过阈值 c 时：
 
-$$g\leftarrow g\frac{c}{\|g\|_2}.$$
+```math
+g\leftarrow g\frac{c}{\|g\|_2}.
+```
+
 
 裁剪把过大梯度缩小，但无法让已经消失的梯度重新出现。
 
@@ -140,12 +165,27 @@ LSTM 除隐藏输出 h_t 外，还维护 cell state c_t。先把它理解为一�
 
 先读最中间的 `c_t = 旧记忆保留项 + 新内容写入项`，再看这些门由输入怎样算出来。记号 `[x_t;h_{t-1}]` 是把两组特征拼接，`⊙` 是逐元素相乘。常用定义：
 
-$$i_t=\sigma(W_i[x_t;h_{t-1}]+b_i),\quad
-f_t=\sigma(W_f[x_t;h_{t-1}]+b_f),$$
-$$o_t=\sigma(W_o[x_t;h_{t-1}]+b_o),\quad
-\tilde c_t=\tanh(W_c[x_t;h_{t-1}]+b_c),$$
-$$\boxed{c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t},$$
-$$h_t=o_t\odot\tanh(c_t).$$
+```math
+i_t=\sigma(W_i[x_t;h_{t-1}]+b_i),\quad
+f_t=\sigma(W_f[x_t;h_{t-1}]+b_f),
+```
+
+
+```math
+o_t=\sigma(W_o[x_t;h_{t-1}]+b_o),\quad
+\tilde c_t=\tanh(W_c[x_t;h_{t-1}]+b_c),
+```
+
+
+```math
+\boxed{c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t},
+```
+
+
+```math
+h_t=o_t\odot\tanh(c_t).
+```
+
 
 | 量 | 初学者可以怎样理解 |
 |---|---|
@@ -160,8 +200,15 @@ $$h_t=o_t\odot\tanh(c_t).$$
 
 假设某维 c_{t−1}=2，f_t=0.9，i_t=0.2，c̃_t=−0.5，o_t=0.8：
 
-$$c_t=0.9\times2+0.2\times(-0.5)=1.7,$$
-$$h_t=0.8\tanh(1.7)\approx0.7483.$$
+```math
+c_t=0.9\times2+0.2\times(-0.5)=1.7,
+```
+
+
+```math
+h_t=0.8\tanh(1.7)\approx0.7483.
+```
+
 
 cell state 可以大于 1，tanh 后的隐藏输出则受限。两者不是同一个变量。
 
@@ -171,8 +218,15 @@ cell state 可以大于 1，tanh 后的隐藏输出则受限。两者不是同�
 
 GRU 常用更新门 z、重置门 r，不另设独立 cell state。一个约定为：
 
-$$\tilde h_t=\tanh(W_xx_t+W_h(r_t\odot h_{t-1})+b),$$
-$$h_t=(1-z_t)\odot h_{t-1}+z_t\odot\tilde h_t.$$
+```math
+\tilde h_t=\tanh(W_xx_t+W_h(r_t\odot h_{t-1})+b),
+```
+
+
+```math
+h_t=(1-z_t)\odot h_{t-1}+z_t\odot\tilde h_t.
+```
+
 
 不同资料可能交换 z 与 1−z 的语义，也可能调整重置门位置，因此实现必须和所用公式一起看。本节帮助理解“门控更新”这一共性，不把它当作本版课件中的详细逐页推导。
 

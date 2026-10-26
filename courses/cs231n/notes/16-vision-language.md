@@ -40,12 +40,18 @@
 
 图像编码器得到 v_i，文本编码器得到 t_j，通常分别归一化。对 B 对图文：
 
-$$S_{ij}=v_i^Tt_j/\tau.$$
+```math
+S_{ij}=v_i^Tt_j/\tau.
+```
+
 
 S 是 B×B 矩阵，对角线对应配对图文，其他位置对应非配对候选。图到文损失为：
 
-$$L_{I\to T}=-\frac1B\sum_i
-\log\frac{e^{S_{ii}}}{\sum_j e^{S_{ij}}}.$$
+```math
+L_{I\to T}=-\frac1B\sum_i
+\log\frac{e^{S_{ii}}}{\sum_j e^{S_{ij}}}.
+```
+
 
 文到图则沿另一维度分类，再取两个方向的平均。注意第二个方向不是重新使用同一行 softmax，而是让文本查询图像。
 
@@ -88,14 +94,20 @@ Prompt ensemble 使用多个措辞得到类别表示并聚合，可能减轻单�
 
 一个常见结构：
 
-$$\text{图像}\rightarrow\text{视觉编码器}\rightarrow
-\text{连接模块}\rightarrow\text{语言模型}.$$
+```math
+\text{图像}\rightarrow\text{视觉编码器}\rightarrow
+\text{连接模块}\rightarrow\text{语言模型}.
+```
+
 
 视觉编码器往往输出多个 patch 表示，连接模块把其维度和语义空间适配到语言模型，再与文本 token 共同参与生成。
 
 训练目标常是条件语言建模：
 
-$$L=-\sum_t\log p_\theta(w_t\mid w_{<t},I,\text{指令}).$$
+```math
+L=-\sum_t\log p_\theta(w_t\mid w_{<t},I,\text{指令}).
+```
+
 
 这里预测的是回答 token，不是固定类别编号。哪些 token 参与损失、哪些模块被冻结、如何处理高分辨率图片，都属于具体训练配方。
 

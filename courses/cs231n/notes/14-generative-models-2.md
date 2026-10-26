@@ -38,8 +38,11 @@
 
 生成器 G_θ 把简单噪声 z 转为样本 G(z)，判别器 D_φ 判断输入来自真实数据的程度。经典目标为：
 
-$$\min_G\max_D\ \mathbb E_{x\sim p_{data}}[\log D(x)]
-+\mathbb E_{z\sim p(z)}[\log(1-D(G(z)))].$$
+```math
+\min_G\max_D\ \mathbb{E}_{x\sim p_{data}}[\log D(x)]
++\mathbb{E}_{z\sim p(z)}[\log(1-D(G(z)))].
+```
+
 
 判别器希望把真图与生成图分开；生成器希望让生成图被判别器认为是真实的。
 
@@ -53,7 +56,10 @@ D 的输出可以按二分类概率解释，但只反映当前判别任务，并
 
 常用的非饱和生成器损失为：
 
-$$L_G=-\mathbb E_z\log D(G(z)).$$
+```math
+L_G=-\mathbb{E}_z\log D(G(z)).
+```
+
 
 它与原始 minimax 中对 G 的损失形式不同，用于改善早期梯度。说明算法时应标明使用哪种目标。
 
@@ -80,15 +86,24 @@ DCGAN 展示用卷积网络实现生成器和判别器的路线。课件以它�
 
 Rectified Flow 的教学构造很直接。抽取数据 x、噪声 z∼N(0,I)、时间 t∈[0,1]，定义：
 
-$$\boxed{x_t=(1-t)x+tz.}$$
+```math
+\boxed{x_t=(1-t)x+tz.}
+```
+
 
 于是 t=0 时 x_t=x；t=1 时 x_t=z。对时间求导：
 
-$$\frac{dx_t}{dt}=z-x.$$
+```math
+\frac{dx_t}{dt}=z-x.
+```
+
 
 这个速度是已知的，因为训练时 x 和 z 都在手里。令网络 v_θ(x_t,t) 预测它，使用平方回归目标：
 
-$$\boxed{L=\mathbb E_{x,z,t}\|v_\theta(x_t,t)-(z-x)\|_2^2.}$$
+```math
+\boxed{L=\mathbb{E}_{x,z,t}\|v_\theta(x_t,t)-(z-x)\|_2^2.}
+```
+
 
 网络输入带噪样本与时间，输出与 x_t **相同形状**的速度向量。若 x_t 是整张图，速度也是每个像素、每个通道的变化量。
 
@@ -96,7 +111,10 @@ $$\boxed{L=\mathbb E_{x,z,t}\|v_\theta(x_t,t)-(z-x)\|_2^2.}$$
 
 取数据 x=2、噪声 z=−1：
 
-$$x_t=2-3t,\qquad v=z-x=-3.$$
+```math
+x_t=2-3t,\qquad v=z-x=-3.
+```
+
 
 当 t=0.25，x_t=1.25。训练目标是让网络在这个输入和时间上预测 −3。
 
@@ -104,7 +122,10 @@ $$x_t=2-3t,\qquad v=z-x=-3.$$
 
 图的横轴从数据端 t=0 走向噪声端 t=1，而生成时要逆着走，从右往左。若使用 4 次 Euler 更新，Δt=−0.25，则：
 
-$$x_{t+\Delta t}=x_t+\Delta t\,v_\theta(x_t,t).$$
+```math
+x_{t+\Delta t}=x_t+\Delta t\,v_\theta(x_t,t).
+```
+
 
 假设本例速度被精确预测，得到：−1→−0.25→0.5→1.25→2。
 
@@ -130,7 +151,10 @@ $$x_{t+\Delta t}=x_t+\Delta t\,v_\theta(x_t,t).$$
 
 训练时随机丢弃部分条件，使同一网络能够产生条件与无条件预测。采样时组合：
 
-$$v_{guided}=v_{uncond}+s(v_{cond}-v_{uncond}).$$
+```math
+v_{guided}=v_{uncond}+s(v_{cond}-v_{uncond}).
+```
+
 
 - s=0：无条件预测。
 - s=1：普通条件预测。
@@ -144,14 +168,20 @@ $$v_{guided}=v_{uncond}+s(v_{cond}-v_{uncond}).$$
 
 课件后部把带噪过程推广为：
 
-$$x_t=a(t)x+b(t)z.$$
+```math
+x_t=a(t)x+b(t)z.
+```
+
 
 目标可以参数化为预测噪声、干净样本、速度等。不同参数化之间可能在给定噪声日程下互相换算，但损失权重与数值性质未必相同。
 
 作为与常见 DDPM 符号的衔接补充：
 
-$$x_t=\sqrt{\bar\alpha_t}x_0+
-\sqrt{1-\bar\alpha_t}\varepsilon,$$
+```math
+x_t=\sqrt{\bar\alpha_t}x_0+
+\sqrt{1-\bar\alpha_t}\varepsilon,
+```
+
 
 常见训练目标为 E‖ε−ε_θ(x_t,t)‖²。这里是另一种日程与参数化，**不能把本章 Rectified Flow 的 z−x 目标直接换成 ε，却保持所有其他公式不变。**
 

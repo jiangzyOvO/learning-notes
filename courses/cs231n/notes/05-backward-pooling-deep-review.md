@@ -74,10 +74,11 @@ features = activations.mean(axis=(2, 3))
 
 感受野 r 是一个输出单元理论上可能依赖的原输入范围，jump j 是相邻输出中心在原输入中的间距。初始 r=j=1。层的有效核大小 k、步长 s：
 
-$$
+```math
 r_{\mathrm{new}}=r_{\mathrm{old}}+(k-1)j_{\mathrm{old}},\qquad
 j_{\mathrm{new}}=j_{\mathrm{old}}s
-$$
+```
+
 
 先用旧 j 算新 r。膨胀核用有效核大小，不直接用参数核宽。
 

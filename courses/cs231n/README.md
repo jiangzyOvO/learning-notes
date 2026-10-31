@@ -100,3 +100,7 @@ python3 experiments/sigmoid_network.py
 [返回学习笔记首页](../../README.md)。课件和视频通过来源链接访问。
 
 [笔记模板](templates/lecture.md) · [常见问题](QUESTIONS.md) · [实验索引](PROGRESS.md)
+
+## 课程作业
+
+[CS231n 2026 Assignment 1](assignments/2026/README.md)：官方起始代码、题目入口与实现说明。

@@ -271,4 +271,173 @@ def batch_encode(self, texts, pad_to=None):
     # 经过填充对齐Token ID张量输入给模型，原始序列的真实长度张量用于Attention
     return torch.LongTensor(arr), lengths
 ```
+### Step2. 构建自注意力层
+```Python
+class SimpleSelfAttention(nn.Module):
+    def __init__(self, d_model, nhead):
+        super().__init__()
+        # 检查模型的隐藏层维度d_model能否被头数量nhead整除
+        assert d_model % nhead == 0 
+        self.nhead = nhead           # 多头注意力机制的头数量
+        self.d_k = d_model // nhead  # 每一个头分配到的维度
+        # 投影层将输入x投影到Q、K、V三个张量，总输出维度为3 * d_model。
+        self.qkv = nn.Linear(d_model, d_model * 3) 
+        self.out = nn.Linear(d_model, d_model)
+    def forward(self, x, mask=None):
+        B, T, D = x.shape # 输入张量的信息
+        # 线性投影 Q, K, V
+        qkv = self.qkv(x)  # 对输入[B, T, D]进行投影，得到形状为[B, T, 3*D]的融合张量
+        q, k, v = qkv.chunk(3, dim=-1) # 沿最后一个维度均切分成Q, K, V，形状均为[B, T, D]
 
+        # 多头拆分借助view()，Q, K, V改变[B, T, D]->[B, T, nhead, d_k]
+        # transpose转置，Q, K, V改变[B, T, nhead, d_k]->[B, nhead, T, d_k]
+        q = q.view(B, T, self.nhead, self.d_k).transpose(1, 2) # 先拆分再转置
+        k = k.view(B, T, self.nhead, self.d_k).transpose(1, 2)
+        v = v.view(B, T, self.nhead, self.d_k).transpose(1, 2)
+
+        # 计算Q和K的内积相似度，形状为[B, nhead, T, T]
+        # 除以 √d_k 尺度缩放防止内积结果过大，导致归一化处理以后梯度消失
+        scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.d_k)
+        
+        # Attention Mask掩码操作
+        if mask is not None:
+            # mask通常为[B, T]，生成掩码~mask.bool()需要掩码的地方为1，乘以-1e9将mask处的得分设为一个极小的负数。
+            attn_mask = (~(mask.bool().unsqueeze(1).unsqueeze(2))) * -1e9
+            scores = scores + attn_mask  # 对得分进行掩码操作
+
+        # Softmax归一化：将得分转换为注意力权重，极小负数的位置权重趋近于0（完成屏蔽）。
+        attn = F.softmax(scores, dim=-1) 
+        # 注意力加权，权重attn乘以Value，得到加权求和的输出[B, nhead, T, d_k]。
+        out = torch.matmul(attn, v)
+
+        # 先转置恢复 [B, T, nhead, d_k]，
+        # 然后用contiguous().view() 将所有头的输出拼接回原始的D维度[B, T, D]。
+        out = out.transpose(1, 2).contiguous().view(B, T, D)
+        return self.out(out)
+```
+### Step3. 构建 MoE 层
+```Python
+class MoELayer(nn.Module):
+    def __init__(self, d_model, d_ff, n_experts=4, k=1, capacity_factor=1.25, noisy_gating=True):
+        super().__init__()
+        assert k in (1,2) # 确保K激活专家数是1或2
+        self.d_model = d_model
+        self.d_ff = d_ff
+        self.n_experts = n_experts
+        self.k = k
+        self.capacity_factor = capacity_factor
+        self.noisy_gating = noisy_gating
+
+        # 门控网络：负责计算每个token与n_experts个专家的匹配得分（Logits）。
+        self.w_gating = nn.Linear(d_model, n_experts, bias=False)
+        if noisy_gating:
+            # 噪声网络：引入噪声有助于在训练时平均分配token到不同的专家，缓解负载不均衡问题。
+            self.w_noise = nn.Linear(d_model, n_experts, bias=False)
+
+        # 专家网络，每个专家是一个独立的FFN
+        self.experts = nn.ModuleList([
+            nn.Sequential(
+                nn.Linear(d_model, d_ff),
+                nn.GELU(), # 使用GELU激活函数
+                nn.Linear(d_ff, d_model)
+            ) for _ in range(n_experts)
+        ])
+
+    def _noisy_logits(self, x):
+        """
+            x : 展平后的输入token向量，形状为[N, D] (N=B*T)。
+            Tensor: 带噪声的专家logits，形状为[N, E]。
+        """
+        logits = self.w_gating(x)
+        
+        # 在训练模式且开启noisy_gating时引入随机噪声
+        if self.noisy_gating and self.training:
+            # 使用sigmoid将w_noise的输出映射到[0, 1]，作为噪声的标准差
+            noise_std = torch.sigmoid(self.w_noise(x))
+
+            # 加上正态分布噪声这增强了随机性，有助于训练时的负载均衡
+            logits = logits + torch.randn_like(logits) * noise_std
+        return logits
+
+    def forward(self, x, mask=None):
+        B, T, D = x.shape
+        N = B * T
+        x_flat = x.view(N, D)  # [B, T, D] -> [N, D]
+
+        logits = self._noisy_logits(x_flat)
+        scores = F.softmax(logits, dim=-1) # 归一化的专家选择权重，[N, E]
+
+        if self.k == 1:
+            top1 = torch.argmax(scores, dim=-1)  # 每个token选出的Top-1专家索引，[N]
+            # Dispatch Mask：[N, E]，标记每个token选中的Top-1专家，用1表示选中
+            dispatch_mask = F.one_hot(top1, num_classes=self.n_experts).to(x.dtype)
+            # 提取每个token选中的Top-1专家的得分作为最终组合权重，得到[N]
+            combine_weights = torch.gather(scores, 1, top1.unsqueeze(1)).squeeze(1)
+            # 计算规定每个专家最多处理的token数量
+            capacity = int((N/self.n_experts)*self.capacity_factor)+1
+
+            expert_inputs = []
+            expert_indices = []
+            for e in range(self.n_experts):
+                # 找到专家e应该处理的token原始索引值，[N]
+                idx = torch.nonzero(dispatch_mask[:, e], as_tuple=False).squeeze(-1)
+                if idx.numel() > capacity:
+                    # 专家e容量检查，如果超过容量，丢弃多余的token
+                    idx = idx[:capacity]
+                # 保存专家e需要处理的token
+                expert_inputs.append(x_flat[idx])
+                # 记录专家e需要处理token的原始索引值
+                expert_indices.append(idx)
+            # 初始化输出
+            out_flat = torch.zeros_like(x_flat)
+
+            # 遍历每个专家
+            for e in range(self.n_experts):
+                if expert_inputs[e].size(0)==0:
+                    continue   # 专家e没有处理的token
+                # 第e个专家处理token
+                y = self.experts[e](expert_inputs[e])
+                out_flat[expert_indices[e]] = y  # 将专家e的输出放回其在原始序列中的位置
+            out_flat = out_flat * combine_weights.unsqueeze(1)  # 所有专家处理的结果乘以组合权重
+            return out_flat.view(B, T, D)
+        else:
+            # Top-2 简化实现
+            # 每个token选出Top-2专家的得分和索引，[N, 2]
+            topk_vals, topk_idx = torch.topk(scores, k=2, dim=-1)
+            # 计算出每个专家最大处理token数量
+            capacity = int((N/self.n_experts)*self.capacity_factor)+1
+            expert_buckets = [[] for _ in range(self.n_experts)] # 初始化存储空间
+            for i in range(N):
+                for j in range(2):
+                    e = int(topk_idx[i,j].item())      # Top-K专家索引值
+                    w = float(topk_vals[i,j].item())   # 相应的token组合权重
+                    expert_buckets[e].append((i,w)) # 存储：token原始索引、权重
+
+            out_flat = torch.zeros_like(x_flat) # 初始化输出结果
+            for e in range(self.n_experts):
+                bucket = expert_buckets[e]
+                if len(bucket)==0:
+                    continue
+                if len(bucket) > capacity:
+                    bucket = bucket[:capacity]  # 每个专家丢弃超过容量的token
+
+                # token的原始索引值转化为张量：[C] ->（C=容量限制后的数量）
+                idxs = torch.tensor([i for i,_ in bucket], device=x.device, dtype=torch.long)
+                # 对应的组合权重转化为张量：[C]
+                weights = torch.tensor([w for _,w in bucket], device=x.device, dtype=x.dtype)
+                inp = x_flat[idxs]  # 获取专家e需要处理的token，[C, D]
+                y = self.experts[e](inp)
+                # 专家的输出乘以权重后，累加到输出张量上（Top-2叠加），可能有不止一个专家处理同一个token
+                out_flat[idxs] += y * weights.unsqueeze(1)
+            return out_flat.view(B,T,D)
+```
+# 4. DeepSeek 创新
+## 4.1 DeepSeek V3
+DeepSeek 的架构主要通过以下两个策略来实现专家专业化：
+- 细粒度专家分割：将每个原专家分割成若干个更小的专家，从而显著增加总体专家个数，即将 N 个专家扩展为 mN 个小专家，为专家间更细致的分工提供可能。
+- 保持计算成本恒定：模型在前向时，激活更多个小专家，例如将原来的 Top-K 扩展为 mK 个。
+- 组合灵活性与指数级组合空间增长：细粒度化专家后，可供选择的专家集合组合数量呈阶乘、组合数爆炸式增长，从而显著提高路由器为某一输入构建专家联盟的自由度与多样性。
+- 共享专家
+- 负载均衡
+## 4.2 DeepSeek V4
+# 5. MoE 与深度学习
